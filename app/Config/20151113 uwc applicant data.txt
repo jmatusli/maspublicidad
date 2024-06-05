@@ -1,0 +1,9 @@
+SELECT section_statuses.applicant_user_id, users.id, users.username, contacts.first_name, contacts.family_name, contacts.email
+FROM section_statuses 
+JOIN users 
+ON section_statuses.applicant_user_id=users.id
+JOIN contacts 
+ON  users.contact_id=contacts.id
+WHERE Users.role_id=17
+AND section_statuses.section_id=1
+AND section_statuses.bool_saved=1

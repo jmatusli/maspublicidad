@@ -1,0 +1,81 @@
+	@media print{
+		#header{ display:none;}
+		#sub-menu{ display:none;}
+		#footer{ display:none;}
+		
+		#content
+		{
+			width:100%;
+			margin:0;
+			float:none;
+			font-size:10px;
+		}
+		
+
+		div#content>div:not(.actions),
+		div.index
+		{
+			width:100%;
+			border-right:0px #FFF;
+		}
+		
+		table {
+			overflow:visible;
+			width:100%;
+		}
+		
+		table th.actions,
+		table td.actions 
+		{
+			display:none;
+		}
+		
+		table tr td {
+      border-bottom:0;
+      
+    }
+		
+		a[href]:after {
+			content: none !important;
+		}
+		
+		div.actions
+		{ 
+			display:none;
+		}
+		#left-menu,
+		#left-menu ul
+		{ 
+			display:none;
+		}
+		div.submit { display:none;}
+		button{ display:none;}
+		ul.contextmenu { display:none;}
+		a.btn{ display:none;}	
+    
+    .noprint{ 
+      color:rgba(255,255,255,0)!important;
+      /*background-color:rgba(255,255,255,0)!important;*/
+    }
+    
+    .noprint.bordered tr th, 
+    .noprint.bordered tr td { 
+      border-color:rgba(255,255,255,0)!important;
+      background-color:rgba(255,255,255,0)!important;
+    }
+    
+    div.noprint,
+    tr.noprint,
+    th.noprint,
+    img.noprint{
+      display:none!important;
+    }
+    
+    div#content,
+    div.imprimirVenta {
+      margin:0;
+      padding:0;
+      padding-left:4mm;
+      padding-top:8mm;
+    }
+	}

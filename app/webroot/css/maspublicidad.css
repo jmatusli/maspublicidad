@@ -1,0 +1,949 @@
+	h1{
+    font-size:220%;
+    font-weight:700;
+  }
+  
+  #container form .container-fluid{
+		width:105%;
+	}
+	
+	.floatleft {
+		float:left;
+	}
+	 .clearnone {
+		clear:none;
+	}
+	
+	#container form div.container div,
+	#container form div.container-fluid div{
+		clear:none !important;
+		padding:0;
+	}
+	
+	#container form .container div h3,
+	#container form .container-fluid div h3{
+		margin-top:0em;
+	}
+	
+	#container .container label,
+	#container .container-fluid label{
+		width:30%;
+	}
+  
+  #container .container  .col-md-6 label,
+	#container .container-fluid .col-md-6  label{
+		width:50%;
+	}
+
+	#container div.container-fluid dl {
+		width:100%;
+	}
+	
+  #container div.container-fluid dl dd {
+		float:left;
+		margin-left:30%;
+		width:50%;
+		
+	}
+  #container div.container-fluid dl.dl50 dt {
+		width:50%;
+		
+	}
+	#container div.container-fluid dl dd {
+		margin-left:50%;
+	}
+	
+	#header div.dropdown {
+		float:right;
+		margin:40px 30px 0px 0px;
+		width:70px;
+	}
+	
+	#header ul.dropdown-menu a {
+		color: #000!important;
+	}
+	
+/*
+	light #8CACFF
+	original #FB4001
+	dark #3535FF
+	*/
+	
+	div.useractions {
+		background-color:#00FF00;
+	}
+	
+	.useractions .nav a:hover, .useractions .nav a:focus {
+		background-color: #0e0;
+		border-color: #428bca;
+	}
+	
+	.useractions .nav .open>a, .useractions .nav .open>a:hover, .useractions .nav .open>a:focus {
+		background-color: #0e0;
+		border-color: #428bca;
+	}
+	
+	.useractions .dropdown-menu {
+		background-color: #0e0;
+	}
+	
+	input,textarea {
+		width:100%;
+	}
+	
+	td textarea {
+		width:100%;
+	}
+	
+	#container input[readonly='readonly']{
+		border:#ffffff 0px;
+	}
+	
+	#container table div.input{
+		font-size:80%;
+	}
+	
+	#container form fieldset div.input{
+		padding:0px 7px;
+	}
+	
+	#container form fieldset input, 
+	#container form fieldset textarea{
+		padding:0.1%;
+	}
+	
+	div.boxed{
+		border:1px solid black;
+	}
+	
+	#container div.col-md-5 div.input.text input,
+	#container div.col-md-5 div.input.select select	{
+		width:60%;
+	}
+	
+	#container input.nobox {
+		border:0px;
+		border-color:#FFFFFF;
+	}
+	
+	#container div form div.submit{
+		display:inline-block;
+		
+	}
+	
+	#container div form div.submit.submission{
+		float:left;
+		clear:left;
+	}
+	#container div form div.submit.saveandnext{
+		float:right;
+		clear:right;
+	}
+	#container div form div.submit.saveandnext input{
+		width:15em;		
+	}
+	
+	tr.purchased {
+		background-color:#CCFF90;
+	}
+	
+	#container input.redbg {
+		background-color:#FF0000;
+	}
+	#container input.greenbg {
+		background-color:#00FF00;
+	}
+	#container input.yellowbg {
+		background-color:#FFFF00;
+	}
+	
+	#container input[type=decimal]{
+		text-align:right;
+	}
+	
+	dd span.currency,
+	dd span.amountright
+	{
+		display:inline-block;
+	}
+	
+	
+	
+	span.currency:not(.totalbox),
+	span.currencyleft:not(.totalbox)
+	{
+		float:left;
+	}
+	
+	#container input.red{
+		color:#ff0000;
+	}
+		
+	
+	.amountright
+	{
+		float:right;
+		text-align:right;
+	}
+	
+	#container div.images{
+		width:40%;
+		float:left;
+		clear:right;
+		padding: 0 20px;
+	}
+	#container div.images img{
+		margin: 0 20px;
+	}
+	#container img.resize {
+		width:200px; /* you can use % */
+		height: auto;
+	}
+	#container img.resizesmall {
+		width:100px; /* you can use % */
+		height: auto;
+	}
+	
+	#container img.smallimage {
+		height: auto;
+		width:75px;
+	}
+	
+	
+	
+	#container .italic {
+		font-style:italic;
+	}
+	
+	#container .fullwidth{
+		width:100%;
+		border-right:0;
+	}
+	
+	#AccountingCodeAddForm div.radioset,
+	#AccountingCodeEditForm div.radioset{
+		width:45%;
+		float:left;
+		clear:none;
+	}
+	
+	#AccountingCodeAddForm div.radioset legend,
+	#AccountingCodeEditForm div.radioset legend{
+		margin-bottom:0px;
+		color:#000000;
+		font-size:120%;
+	}
+	
+	#AccountingCodeAddForm div.radioset input,
+	#AccountingCodeEditForm div.radioset input {
+		width:20%;
+		display:inline-block;
+		margin:0px;
+	}
+	
+	#AccountingCodeAddForm div.radioset label,
+	#AccountingCodeEditForm div.radioset label {
+		width:70%;
+		display:inline-block;
+		margin:0px;
+	}
+		
+	#container #OrderAddSaleForm div,
+	#container #OrderEditSaleForm div,
+	#container #OrderAddRemissionForm div,
+	#container #OrderEditRemissionForm div,
+	#container #CashReceiptAddForm div,
+	#container #CashReceiptEditForm div,
+	#container #ChequeAddForm div,
+	#container #ChequeEditForm div,
+	#container #TransferAddForm div,
+	#container #TransferEditForm div
+	{
+		padding:0em 0.5em;
+		margin:0 0 0.5em 0;
+	}
+	#container #OrderAddSaleForm  label,
+	#container #OrderEditSaleForm  label,
+	#container #OrderAddRemissionForm  label,
+	#container #OrderEditRemissionForm  label,
+	#container #CashReceiptAddForm  label,
+	#container #CashReceiptEditForm  label,
+	#container #ChequeAddForm label,
+	#container #ChequeEditForm label,
+	#container #TransferAddForm label,
+	#container #TransferEditForm label
+	{
+		width:25%;
+	} 
+	#container #OrderAddSaleForm .righttop input,
+	#container #OrderEditSaleForm .righttop input,
+	#container #OrderAddRemissionForm .righttop input,
+	#container #OrderEditRemissionForm .righttop input,
+	#container #CashReceiptAddForm .righttop input,
+	#container #CashReceiptEditForm .righttop input,
+	{
+		width:20%;
+	}
+	#container #OrderAddSaleForm .righttop label, #container #OrderAddSaleForm .righttop input,
+	#container #OrderEditSaleForm .righttop label, #container #OrderEditSaleForm .righttop input,
+	#container #OrderAddRemissionForm .righttop label, #container #OrderAddRemissionForm .righttop input,
+	#container #OrderEditRemissionForm .righttop label, #container #OrderEditRemissionForm .righttop input
+	{
+		width:40%;
+	}
+	#container #CashReceiptAddForm .righttop label, #container #CashReceiptAddForm .righttop input,
+	#container #CashReceiptEditForm .righttop label, #container #CashReceiptEditForm .righttop input
+	{
+		width:45%;
+	}
+	#container #OrderAddSaleForm .checkbox input,
+	#container #OrderEditSaleForm .checkbox input,
+	#container #OrderAddRemissionForm .checkbox input,
+	#container #OrderEditRemissionForm .checkbox input,
+	#container #CashReceiptAddForm .checkbox input,
+	#container #CashReceiptEditForm .checkbox input
+	{
+		float:left;
+		width:5%;
+		margin-left:25%;
+	}
+	
+	#container #CashReceiptAddForm input,
+	#container #CashReceiptEditForm input,
+	#container #CashReceiptAddForm textarea,
+	#container #CashReceiptEditForm textarea,
+	#container #CashReceiptAddForm select,
+	#container #CashReceiptEditForm select
+	{
+		font-size:100%;
+		padding:0;
+	}
+	
+	#container #invoicesForClient th,
+	#container #invoicesForClient td
+	{
+		font-size:80%;
+	}
+	#container #invoicesForClient div.input,
+	#container #invoicesForClient div.input input,
+	#container #invoicesForClient div.input select
+	{
+		width:100%;
+		padding:0;
+	}
+	
+	#container #invoicesForClient td.amount {
+		width:120px;
+	}
+	
+	#container #invoicesForClient td.amount div.input{
+		width:70%;
+		display:inline-block;
+	}
+	
+	#container .italic{
+		font-style:italic;
+	}
+	
+	#container td div.decimal {
+		width:70%;
+	}
+	
+	#container td div.numeric input{
+		text-align:center;
+		width:100%;
+	}
+	
+	#container td div.decimal input{
+		text-align:right;
+		width:100%;
+	}
+	
+	#container #productosParaCotizacion {
+		font-size:0.9em;
+	}
+	
+	#container #productsForSale td div.decimal {
+		width:100%;
+	}
+
+	
+	#container #productsForSale td div.decimal input{
+		text-align:right;
+		width:70%;
+	}
+	
+	#container #productsForSale .currencyinput{
+		width:120px;
+	}
+		
+	#container #productsForRemission td div.decimal input{
+		text-align:right;
+		width:70%;
+	}
+	
+	#container #productsForRemission .currencyinput{
+		width:120px;
+	}
+	
+	#container tr .amount{
+		min-width:150px!important;
+	}
+	#container tr span.amount{
+		width:70%;
+	}
+	
+	#container th.narrow{
+		width:10%;
+	}
+	#container div input.narrow{
+		width:30%;
+	}
+	
+	#container div.narrow{
+		width:80%;
+	}
+	
+	#container td.right{
+		text-align:right;
+	}
+	
+	#container div.righttop dl {
+		width:100%;
+	}
+	#container div.righttop dt {
+		width:40%;
+		clear:left;
+		display:inline-block;
+	}
+	#container div.righttop dd {
+		width:40%;
+		display:inline-block;
+		margin:0;
+		clear:right;
+	}
+	
+	#container td div.input.decimal{
+		display:inline-block;
+	}
+	
+	#container td.amount span.currency,
+	#container td button
+	{
+		padding:1em .5em;
+	}
+	
+	#container .related td.amount span.currency,
+	#container .related td button
+	{
+		padding:0;
+	}
+	
+	
+	#container tr.reminderwarning {
+		background-color:#FF3333;
+	}
+	
+	#container tr.totalrow td,
+	#container tr.totalrow div,
+	#container tr.totalrow span,
+	#container tr.totalrow input,
+	#container tr.totalrow td.amount span.currency
+	{
+		padding-top:0em;
+		padding-bottom:0em;
+		margin-bottom:0em;
+	}
+	
+	#container td div.text input,
+	#container td div.email input,
+	#container td div.tel input
+	{
+		width:100%;
+	}
+	
+	#container table{
+		font-size:1em;
+	}
+	
+	tr#accountingRegisterTotals.match
+	{
+		font-weight:bold;
+		background-color:#00ff00 !important;
+	}
+	
+	
+	tr#accountingRegisterTotals.nomatch
+	{
+		font-weight:bold;
+		background-color:#ff0000 !important;
+	}
+	
+	tr.nomatchwarning
+	{
+		background-color:#ffff00 !important;
+	}
+	
+	tr.subaccountheader
+	{
+		font-weight:bold;
+		background-color:#FFDCB5 !important;
+	}
+	tr.subaccountfooter
+	{
+		font-weight:bold;
+		background-color:#FFE387 !important;
+	}
+	
+	td.red {
+		color:#ff0000 !important;
+	}
+	
+	
+
+
+
+	
+	#container{
+		background:#8CACFF;
+		color: #fff;
+		font-family:helvetica,verdana,'lucida grande',arial,sans-serif;
+		font-size:14px;
+		margin: 0;
+	}
+	
+	#container label{
+		width:20%;
+		font-weight:bold;
+		vertical-align:top;
+	}
+	#container input{
+		width:60%;
+	}
+	
+	#container .checkbox label{
+		padding-left:0em;
+		width:20%;
+	}		
+	#container .checkbox input{
+		padding-left:0em;
+		width:40%;
+		margin-left:0%;
+	}
+	#container .checkboxwithwarning label{
+		padding-left:0em;
+		width:20%;
+		display:inline-block;
+		float:left;
+		clear:left;
+	}		
+	#container .checkboxwithwarning input{
+		padding-left:0em;
+		width:5%;
+		margin-left:0%;
+		display:inline-block;
+		float:left;
+		clear:none;
+	}
+	
+	.redfatwarning{
+		color:#ff0000;
+		font-weight:bold;
+		
+	}
+	.checkboxwithwarning .redfatwarning{
+		display:inline-block;
+		float:left;
+	}
+	
+	#container .checkboxleft label{
+		padding-left:2%;
+		width:40%;
+	}
+	#container .checkboxleft input{
+		width:2%;
+	}
+	
+	#container .checkboxleftbig label{
+		padding-left:10%;
+		width:80%;
+	}
+	#container .checkboxleftbig input{
+		width:10%;
+	}
+	
+	
+	
+	#container .submit input{
+		width:10em;
+	}
+	
+	#container .centered{
+		text-align:center;
+	}
+	
+	#container a.btn-primary{
+		text-decoration:none;
+		font-weight:bold;
+	}
+	
+	#container .bold{
+		font-weight:bold;
+	}
+	
+	#container .warning{
+		background-color:#ff8800;
+	}
+	
+	#container .orderdate{
+		width:100px;
+	}
+	
+	#container .productionRuns.manipular form div{
+		margin:0;
+		padding:0;
+	}
+	
+	#productionRunDateManipulation {
+		display:none;
+	}
+	
+	#container div.form,
+	#container div.view,
+	#OrderAddSaleForm, 	#OrderAddSaleForm div,
+	#OrderEditSaleForm,	#OrderEditSaleForm div, 
+	#OrderAddPurchaseForm, #OrderEditPurchaseForm,
+	#ProductionRunAddForm,#ProductionRunEditForm, 
+	#CashReceiptAddForm,#CashReceiptEditForm, 
+	#container div.orders.view, #container div.productionRuns.view{
+		position:relative;
+	}
+	
+
+	#container .righttop {
+		position:absolute;
+		right:0%;
+		top:1.5em;
+		width:20%;
+		background-color:#aaffdd;
+	}
+	
+	#container .righttop.quotation,
+	#container .righttop.invoice {
+		position:absolute;
+		right:0%;
+		top:10em;
+		width:25%;
+		background-color:#aaffdd;
+	}
+	
+	
+	#container .righttop.wide{
+		width:35%;
+	}
+	
+	#container .orders.view .righttop, 
+	#container div.productionRuns.view .righttop,
+	{
+		position:absolute;
+		right:5%;
+		top:1.5em;
+		width:20%;
+		background-color:#ffffff;
+	}
+	
+	#OrderAddSaleForm div.righttop{
+		width:25%;
+		top:0em;
+	}
+	
+	#OrderAddSaleForm div.actions.righttop 
+	{
+		width:15%;
+		background-color:#FFFFFF;
+		top:0em;
+	}
+	
+	#container #OrderAddPurchaseForm .righttop  {
+		right:0%;
+	}
+	
+	
+	#container .righttop label, #container .righttop input{
+		width:100%;
+	}
+	
+	#container form#CashReceiptAddForm , #container form#CashReceiptEditForm  {
+		margin-right:0;
+		width:100%;
+	}
+	#CashReceiptAddForm .righttop, #container #CashReceiptEditForm .righttop  {
+		width:30%;
+	}
+	
+	#container #ProductionRunAddForm .righttop, #container #ProductionRunEditForm .righttop  {
+		width:35%;
+	}
+	
+	#ProductionRunAddForm .righttop label, #ProductionRunAddForm .righttop input,
+	#ProductionRunEditForm .righttop label, #ProductionRunEditForm .righttop input
+	{
+		width:50%;
+	}
+	
+	#container .stockItems.report, 
+	#container .stockItems.inventory, 
+	#container .orders.form.sales, 
+	#container .stockMovements.report,
+	#container .stockItemReclassification 
+	{
+		width:100%;
+		border-right:0;
+	}
+
+	#container dt{
+		width:20em;
+	}
+	#container dd{
+		margin-left:20em;
+	}
+	
+	
+	#container #headerbar{
+		background:#3535FF;
+	}	
+	#container #header h1{
+		background:#3535FF;
+		display:inline-block;
+		position:relative;
+	}
+
+	#container #header h1 a{
+		background:#3535FF;
+	}
+	
+	#container #headerbar nav{
+		background:#3535FF;		
+		display:inline-block;
+		
+	}
+	#headerbar ul{
+		top:20px;
+		left:100px;
+	}
+	
+	.username{
+		display:inline-block;
+		position:relative;
+		float:right;
+		font-weight:bold;
+		color:#ff0000;
+		font-size:2em;
+		margin: 40px 105px 0px 0px;
+	}
+	
+	.print{
+		position:relative;
+		float:right;
+		margin: 40px 70px 0px 0px;
+	}
+	
+	.logout{
+		position:relative;
+		float:right;
+		margin: 40px 35px 0px 0px;
+	}
+	
+	#footer {
+		min-height:62px;
+	}
+	
+	#copyright {
+		float:left;
+	}
+	
+	#intersinaptico{
+		position:relative;
+		float:right;
+	}
+	
+	div.home {
+		float:left;
+		width:85%;
+		border-right:1px solid #666;
+		padding:10px 2%;
+	}
+	
+	table .hidden{
+		display:none;
+	}
+    
+	div.index table{
+		overflow:hidden;
+	}
+	/* save alignment in view pages */
+	dd{
+		margin-top:-1.4em;
+	}
+	/***************************************************************************************************************
+	/** add configuration options ************************************************************
+	/**************************************************************************************************************/
+
+	#configoptions h1 {
+		font-size:2em;
+		font-weight:bold;
+	}
+
+	#configoptions .col-md-4 div {
+		margin-left:5%;
+	}
+
+	#configoptions .col-md-4 div a {
+		font-size:1.2em;
+		text-decoration:none;
+	}
+
+	/***************************************************************************************************************
+	/** production runs ************************************************************
+	/**************************************************************************************************************/
+	
+	
+	div.productionRuns.view {
+		float:left;
+		clear:none;
+		width:55%;
+	}
+	/*
+	div.productionRuns.form.edit{
+		width:80%;
+	}
+	*/
+	div.stockRemovals.form, div.stockRemovals.view {
+		float:left;
+		clear:none;
+		width:55%;
+	}
+
+	div.stockRemovals.form.edit{
+		width:80%;
+	}
+
+	
+	#container div.productionRuns.form .col-md-6 label, div.productionRuns.view label{
+		/*float:left;
+		clear:none;*/
+		width:40%;
+	}
+	
+	#container div.productionRuns.form input, div.productionRuns.view input{
+		/*float:left;
+		clear:none;*/
+		width:40%;
+	}
+	
+	#inventoryTotals {
+		margin-left:1em;
+		float:left;
+		clear:right;
+		width:20%;
+	}
+	
+	.productionrunmaterials{
+		float:left;
+		clear:right;
+	}
+	
+	
+	.totalrow td{
+		font-weight:bold;
+		background-color:#BFE4FF;
+	}
+	.totalcolumn {
+		background-color:#ffffad;
+	}
+
+	/***************************************************************************************************************
+	/** add order table displaying the ordered products ************************************************************
+	/** in orders/add, the tables should use the whole space of locations index ************************************
+	/**************************************************************************************************************/
+	
+	.orders form {
+		/* width:50%;*/
+		float:left;
+		clear:none;
+	}
+	
+	.orders form  label{
+		display:inline-block;
+		margin-right:5px;
+		width:15%;
+	}
+	
+	#StockItemReclasificarTaponesForm label {
+		width:25%;
+	}
+	
+	#container .sales,#container  .sales form{
+		padding-right:0;
+	}
+	
+	#container .sales form .col-md-5, #container .sales form .col-md-4, #container .sales form .col-md-3{
+		clear:none;
+	}
+	
+	#container .sales #inventoryTotals, 
+	#container .actions.productionrun #inventoryTotals,
+	#container .stockItemReclassification #inventoryTotals
+	{
+		width:100%;
+	}
+	
+	
+	
+	#container .sales select, #container .sales input{
+		font-size:100%;
+	}
+	
+	#OrderAddSaleForm table select,
+	#OrderAddSaleForm table input,
+	#OrderEditSaleForm table select,
+	#OrderEditSaleForm  table input{
+		width:100%;
+	}
+	
+	#printinfo{
+		display:none;
+	}
+	
+	#container table.grid th, #container table.grid td{
+		border:1px solid black;
+	}
+	
+	#container .report table th, #container .report table td{
+		font-size:12px;
+		border:1px solid black;
+	}
+	
+  
+	:not(th).separator, .totalrow .separator {
+		background-color:#000;
+    border-color:#000;
+	}
+  
+	.miniseparator {
+		width:1px;
+	}
+	
+	#container #sub-menu ul li {
+		float:left;
+		list-style-type:none;
+	}
+	#container #sub-menu ul li a {
+		font-weight:normal; 
+		text-decoration:none;
+	}
+	#container #sub-menu ul li.active>a{
+		font-weight:bold;
+		color:black;
+	}
+	

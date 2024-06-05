@@ -1,0 +1,306 @@
+#invoicePrint {
+  font-size:12px;
+}
+#invoicePrint span{
+  margin-left:0px;
+}
+#invoicePrint table {
+  margin-bottom:2px;
+}
+#invoicePrint table tr th,
+#invoicePrint table tr td
+{
+  padding-left:0;
+  padding-right:0;
+  padding-top:2px;
+  padding-bottom:2px;
+}
+/*
+#ornasa #invoicePrint table tbody tr,
+#ornasa #invoicePrint table tbody tr td{
+  background:none;
+  border-color:#fff;
+}
+*/
+#invoicePrint>div{
+  float:left;
+  clear:none;
+  padding-bottom:1mm;
+}
+
+#invoicePrint .left_spacer{
+  width:4mm;
+  height:270mm;
+  /*background-color:red;*/
+}
+#invoicePrint .top_banner{
+  width:196mm;
+  height:62mm;
+  /*border:1px solid black;*/
+  /*background-color:yellow;*/
+}
+#invoicePrint .top_banner_background{
+  background-image: url("../img/maspublicidad_top_banner.png");
+  background-repeat:no-repeat;
+  background-size:contain;
+  position:absolute;
+  
+  width:192mm;
+  height:62mm;
+}
+#invoicePrint .top_banner_data{
+  position:relative;
+  width:192mm;
+  height:62mm;
+  line-height:15pt;
+  font-size:15pt;
+  
+}
+#invoicePrint .top_banner_data .invoice_code{
+  position:absolute;
+  /*left:126mm;*/
+  left:124mm;
+  /*top:26mm;*/
+  top:28mm;
+  width:18mm;
+  height:7mm;
+}
+#invoicePrint .top_banner_data .invoice_cash{
+  position:absolute;
+  left:147mm;
+  top:50mm;
+  width:8mm;
+  height:7mm; 
+}
+#invoicePrint .top_banner_data .invoice_credit{
+  position:absolute;
+  left:186mm;
+  top:50mm;
+  width:12mm;
+  height:7mm;
+}
+
+#invoicePrint .client_details{
+  position:relative;
+  width:151mm;
+  height:26mm;
+  /*background-color:blue;*/
+}
+#invoicePrint .client_details_background{
+  background-image: url("../img/MP_factura_client_details.jpg");
+  background-repeat:no-repeat;
+  background-size:contain;
+  position:absolute;
+  width:151mm;
+  height:26mm;
+}
+#invoicePrint .client_details .client_name{
+  position:absolute;
+  left:20mm;
+  top:1mm;
+  width:125mm;
+  height:7mm;
+}
+#invoicePrint .client_details .client_ruc{
+  position:absolute;
+  left:15mm;
+  top:9mm;
+  width:130mm;
+  height:7mm;
+}
+#invoicePrint .client_details .client_reference{
+  position:absolute;
+  left:30mm;
+  top:17mm;
+  width:115mm;
+  height:7mm;
+}
+
+#invoicePrint .invoice_date{
+  position:relative;
+  width:43mm;
+  height:27mm;
+  padding-bottom:10mm;
+  margin:0 0 0 2mm;
+  /*background-color:green;*/
+}
+#invoicePrint .invoice_date_background{
+  background-image: url("../img/MP_factura_invoice_date.jpg");
+  background-repeat:no-repeat;
+  background-size:contain;
+  position:absolute;
+  width:42mm;
+  height:16mm;
+}
+#invoicePrint .invoice_date .invoice_date_day{
+  position:absolute;
+  left:0mm;
+  top:10mm;
+  width:13mm;
+  height:10mm;
+  text-align:center;
+}
+#invoicePrint .invoice_date .invoice_date_month{
+  position:absolute;
+  left:12mm;
+  top:10mm;
+  width:14mm;
+  height:10mm;
+  text-align:center;
+}
+#invoicePrint .invoice_date .invoice_date_year{
+  position:absolute;
+  left:25mm;
+  top:10mm;
+  width:15mm;
+  height:10mm;
+  text-align:center;
+}
+
+#invoicePrint .invoice_products{
+  position:relative;
+  width:196mm;
+  height:131mm;
+  /*background-color:yellow;*/
+}
+#invoicePrint .invoice_products_background{
+  background-image: url("../img/MP_factura_invoice_products.jpg");
+  background-repeat:no-repeat;
+  background-size:contain;
+  position:absolute;
+  width:196mm;
+  height:128mm;
+}
+#invoicePrint .invoice_products .invoice_products_table{
+  position:absolute;
+  left:0mm;
+  top:10mm;
+  width:194mm;
+  height:120mm;
+  /*background-color:yellow;*/
+}
+#invoicePrint .invoice_products .invoice_products_table td{
+  /*padding:0 1mm;*/
+}
+#invoicePrint .invoice_products .invoice_products_table td span.amountright{
+  padding:0 1mm;
+}
+
+#invoicePrint .right_spacer{
+  width:2mm;
+  height:221mm;
+  background-color:red;
+}
+
+#invoicePrint .invoice_conditions{
+  position:relative;
+  width:130mm;
+  height:35mm;
+  /*background-color:blue;*/
+}
+#invoicePrint .invoice_conditions_background{
+  background-image: url("../img/MP_factura_invoice_conditions.jpg");
+  background-repeat:no-repeat;
+  background-size:contain;
+  position:absolute;
+  width:130mm;
+  height:35mm;
+}
+#invoicePrint .invoice_conditions .total_cs{
+  position:absolute;
+  left:17mm;
+  top:13mm;
+  width:21mm;
+  height:4mm;
+  text-align:left;
+  font-size:12pt;
+}
+#invoicePrint .invoice_conditions .total_usd{
+  position:absolute;
+  left:49mm;
+  top:13mm;
+  width:20mm;
+  height:4mm;
+  text-align:left;
+  font-size:12pt;
+}
+
+#invoicePrint .invoice_totals_big,
+#invoicePrint .invoice_totals{
+  position:relative;
+  width:66mm;
+  height:35mm;
+  margin:0 1mm;
+  /*background-color:green;*/
+}
+#invoicePrint .invoice_totals_background{
+  background-image: url("../img/MP_factura_invoice_totals.jpg");
+  background-repeat:no-repeat;
+  background-size:contain;
+  position:absolute;
+  width:65mm;
+  height:35mm;
+}
+#invoicePrint .invoice_totals .invoice_subtotal{
+  position:absolute;
+  left:32mm;
+  top:8mm;
+  width:31mm;
+  height:11mm;
+  text-align:right;
+}
+#invoicePrint .invoice_totals .invoice_iva{
+  position:absolute;
+  left:32mm;
+  top:20mm;
+  width:31mm;
+  height:11mm;
+  text-align:right;
+}
+#invoicePrint .invoice_totals .invoice_total{
+  position:absolute;
+  left:32mm;
+  top:31mm;
+  width:31mm;
+  height:11mm;
+  text-align:right;
+}
+#invoicePrint .invoice_totals_big .invoice_subtotal{
+  position:absolute;
+  left:30mm;
+  top:8mm;
+  width:34mm;
+  height:11mm;
+  text-align:right;
+}
+#invoicePrint .invoice_totals_big .invoice_iva{
+  position:absolute;
+  left:30mm;
+  top:20mm;
+  width:34mm;
+  height:11mm;
+  text-align:right;
+}
+#invoicePrint .invoice_totals_big .invoice_total{
+  position:absolute;
+  left:30mm;
+  top:31mm;
+  width:34mm;
+  height:11mm;
+  text-align:right;
+}
+
+#invoicePrint .invoice_signatures{
+  position:relative;
+  width:196mm;
+  height:14mm;
+  /*background-color:yellow;*/
+}
+#invoicePrint .invoice_signatures_background{
+  background-image: url("../img/MP_factura_invoice_signatures.jpg");
+  background-repeat:no-repeat;
+  background-size:contain;
+  position:absolute;
+  width:196mm;
+  height:14mm;
+}

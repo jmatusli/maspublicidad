@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS `vendor_commissions` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `invoice_id` INT NOT NULL,
+  `payment_date` DATE NOT NULL,
+  `commission_paid` DECIMAL(10,2) NOT NULL,
+  `created` DATETIME NULL,
+  `modified` DATETIME NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
