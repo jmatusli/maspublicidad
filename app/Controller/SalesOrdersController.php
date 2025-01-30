@@ -878,7 +878,7 @@ class SalesOrdersController extends AppController {
 								//pr($this->request->data);
 								$this->SalesOrder->id=$salesOrder['SalesOrder']['id'];
                 $authorizationDateTime=new DateTime(date('Y-m-d H:i:s'));
-                $authorizationDateTimeString=$authorizationDateTime->format('Y-m-d H:i:s A');
+                $authorizationDateTimeString=$authorizationDateTime->format('Y-m-d H:i:s');
 								$salesOrderArray=[
                   'SalesOrder'=>[
                     'id'=>$salesOrderId,
@@ -887,8 +887,9 @@ class SalesOrdersController extends AppController {
                     'authorization_datetime'=>$authorizationDateTimeString,
                   ],
                 ];
-                //pr($salesOrderArray);
-                if (!$this->SalesOrder->save($salesOrderArray)) {
+               // pr($salesOrderArray);
+                
+				if (!$this->SalesOrder->save($salesOrderArray)) {
                   echo "Problema al autorizar la orden de venta";
                   pr($this->validateErrors($this->SalesOrder));
                   throw new Exception();
@@ -915,6 +916,8 @@ class SalesOrdersController extends AppController {
 								$this->Session->setFlash($flashMessage,'default',['class' => 'success']);
 							}
 							catch(Exception $e){
+								 //pr($e);
+                                CakeLog::write('maspublicidadquery',"====Exception =======".print_r($e,true));
 								$this->Session->setFlash(__('La orden de venta no se podía autorizar.'), 'default',['class' => 'error-message']);
 							}
 						}	

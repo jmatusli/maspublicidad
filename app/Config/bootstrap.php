@@ -25,20 +25,7 @@
 
 // Setup a 'default' cache configuration for use in the application.
 Cache::config('default', array('engine' => 'File'));
-Cache::config('short', array(
-    'engine' => 'File',
-    'duration' => '+1 hours',
-    'path' => CACHE,
-    'prefix' => 'cake_short_'
-));
 
-// long
-Cache::config('long', array(
-    'engine' => 'File',
-    'duration' => '+1 week',
-    'probability' => 100,
-    'path' => CACHE . 'long' . DS,
-));
 /**
  * The settings below can be used to set additional paths to models, views and controllers.
  *
@@ -88,6 +75,8 @@ CakePlugin::load('Localized');
 CakePlugin::load('AclExtras');
 CakePlugin::load('MenuBuilder');
 CakePlugin::load('CakePdf',array('bootstrap'=>true,'routes'=>true));
+//CakePlugin::load('Bootstrap3') ;
+
 //CakePlugin::load('AclMenu');
 /**
  * You can attach event listeners to the request lifecycle as Dispatcher Filter. By default CakePHP bundles two filters:
@@ -124,6 +113,11 @@ CakeLog::config('error', array(
 	'engine' => 'File',
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
+));
+CakeLog::config('maspublicidadquerys', array(
+	'engine' => 'File',
+	'types' => array('maspublicidadquery'),
+	'file' => 'maspublicidadquerys',
 ));
 Configure::write('CakePdf', array(
 	'engine' => 'CakePdf.DomPdf',

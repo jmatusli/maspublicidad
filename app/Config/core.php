@@ -31,7 +31,9 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 1);
+	  Configure::write('debug', 1);
+	  Configure::write('writeoquery',true);
+ 
 
 /**
  * Configure the Error handler used to handle errors for your application. By default
@@ -215,26 +217,16 @@ Configure::write('Routing.prefixes', array('admin'));
  * the cake shell command: cake schema create Sessions
  *
  */
- // DEFAULT SETTINGS AS THEY ALSO APPEAR IN GURDIAN
- // ALSO RECOMMENDED BY http://stackoverflow.com/questions/14470018/cakephp-session-timeout-on-inactivity-only
+	
+  // 20180820 RECOMMENDED BY http://stackoverflow.com/questions/14470018/cakephp-session-timeout-on-inactivity-only
  
 	Configure::write('Session', array(
 		'defaults' => 'cake',
-		'timeout' => 1440,            // auto logout after 30 minutes - in MINUTES (60 x 24)
-		'cookieTimeout' => 1440,    // session cookie 24 hours - in MINUTES (60 x 24)
+		'timeout' => 240,          // auto logout after 30 minutes - in MINUTES (60 x 24)
+		'cookieTimeout' => 240,    // session cookie 24 hours - in MINUTES (60 x 24)
 		'autoRegenerate' => true    // regenerate session
 	));
-// MODIFIED SETTINGS IN THE HOPE OF OVERCOMING SESSION REGENERATE ERROR
-// COMMENTED OUT ON 20160411 AS THEY DID NOT PREVENT OCCURRENCES OF THE ERROR
-/*
-	Configure::write('Session', array(
-		'defaults' => 'php',
-		'timeout' => 600,            // auto logout after 10 hours
-		'cookieTimeout' => 1440,    // session cookie 24 hours
-		'checkAgent' => false,		//added based on stackoverflow.com session timeout on inactivity
-		'autoRegenerate' => true,    // regenerate session
-	));
-*/
+
 /**
  * A random string used in security hashing methods.
  */
@@ -245,7 +237,6 @@ Configure::write('Routing.prefixes', array('admin'));
  */
 	Configure::write('Security.cipherSeed', '54034576515730-248540381384021283212');
 
-	
 /**
  * Apply timestamps with the last modified time to static assets (js, css, images).
  * Will append a query string parameter containing the time the file was modified. This is
@@ -255,6 +246,7 @@ Configure::write('Routing.prefixes', array('admin'));
  * timestamping regardless of debug value.
  */
 	//Configure::write('Asset.timestamp', true);
+	// to ensure update of css right away
 	Configure::write('Asset.timestamp', 'force');
 
 /**
@@ -376,12 +368,11 @@ $engine = 'File';
 // In development mode, caches should expire quickly.
 $duration = '+999 days';
 if (Configure::read('debug') > 0) {
-	//$duration = '+10 seconds';
-	$duration = '+1 days';
+	$duration = '+10 seconds';
 }
 
 // Prefix each application on the same server with a different string, to avoid Memcache and APC conflicts.
-$prefix = 'maspublicidad_';
+$prefix = 'ornasa_';
 
 /**
  * Configure the cache used for general framework caching. Path information,
