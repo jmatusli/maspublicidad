@@ -878,7 +878,7 @@ class SalesOrdersController extends AppController {
 								//pr($this->request->data);
 								$this->SalesOrder->id=$salesOrder['SalesOrder']['id'];
                 $authorizationDateTime=new DateTime(date('Y-m-d H:i:s'));
-                $authorizationDateTimeString=$authorizationDateTime->format('Y-m-d H:i:s');
+                $authorizationDateTimeString=$authorizationDateTime->format('Y-m-d H:i:s A');
 								$salesOrderArray=[
                   'SalesOrder'=>[
                     'id'=>$salesOrderId,
