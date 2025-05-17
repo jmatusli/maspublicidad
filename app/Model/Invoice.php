@@ -15,7 +15,7 @@ class Invoice extends AppModel {
   
   public function getInvoiceCode(){
     $lastInvoiceCode=$this->find('first',[
-			'order'=>['Invoice.invoice_code DESC'],
+			'order'=>['Invoice.id DESC'],
 		]);
 		if (!empty($lastInvoiceCode)){
 			$newInvoiceCode=$lastInvoiceCode['Invoice']['invoice_code']+1;

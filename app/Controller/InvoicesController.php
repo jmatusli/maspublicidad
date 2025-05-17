@@ -457,7 +457,7 @@ class InvoicesController extends AppController {
 					'User',
 				],
 			],
-			'order'=>['Invoice.invoice_date'=>'DESC','Invoice.invoice_code'=>'DESC'],
+			'order'=>['Invoice.invoice_date'=>'DESC','Invoice.id'=>'DESC'],
 			'limit'=>($invoiceCount!=0?$invoiceCount:1),
 		];
 
@@ -667,6 +667,7 @@ class InvoicesController extends AppController {
 			'order'=>'Invoice.invoice_date DESC, Invoice.invoice_code DESC'
 		];
 		$invoice=$this->Invoice->find('first', $options);
+	//	print_r($invoice['Invoice']);exit;
 		$this->set(compact('invoice'));
 		
 		$filename='Factura_'.$invoice['Invoice']['invoice_code'];
@@ -722,6 +723,7 @@ class InvoicesController extends AppController {
 			),
 		);
 		$invoice=$this->Invoice->find('first', $options);
+		
 		$this->set(compact('invoice'));
 		
 		$filename='Factura_'.$invoice['Invoice']['invoice_code'];
@@ -1100,7 +1102,8 @@ class InvoicesController extends AppController {
     
 		$clientIds=$this->Quotation->getClientIdsForQuotationIds($quotationIds);
     //pr($clientIds);
-		$clients=$this->Client->getClientListForClientIds($clientIds);
+		//$clients=$this->Client->getClientListForClientIds($clientIds);
+		$clients=$this->Client->getClientListForClientIds();
     $currencies = $this->Currency->find('list');
 		$this->set(compact('clients', 'users', 'currencies'));
     
