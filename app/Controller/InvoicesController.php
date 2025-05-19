@@ -1102,8 +1102,7 @@ class InvoicesController extends AppController {
     
 		$clientIds=$this->Quotation->getClientIdsForQuotationIds($quotationIds);
     //pr($clientIds);
-		//$clients=$this->Client->getClientListForClientIds($clientIds);
-		$clients=$this->Client->getClientListForClientIds();
+	    $clients=$this->Client->getClientListForClientIds($clientIds);
     $currencies = $this->Currency->find('list');
 		$this->set(compact('clients', 'users', 'currencies'));
     
