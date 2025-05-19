@@ -12,8 +12,13 @@ class Client extends AppModel {
 	public $displayField="name";
  
   public function getClientListForClientIds($clientIds=[]){
+	  $conditions=[];
+	 if (!empty($clientIds)){
+      $conditions['Client.id']=$clientIds;
+    } 
+ 
     return $this->find('list',[
-      'conditions'=>['Client.id'=>$clientIds],
+      'conditions'=>$conditions,
       'order'=>'Client.name ASC',
     ]);
   }
