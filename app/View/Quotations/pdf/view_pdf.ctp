@@ -294,14 +294,14 @@
 					}
 				}
 				if (!$quotation['Quotation']['bool_print_images'] && !$quotation['Quotation']['bool_print_delivery_time']){
-					$output.="<td style='width:50%;padding:3px;' >".str_replace("\n","<br/>",$quotationProduct['product_description'])."</th>";
+					$output.="<td style='width:50%;padding:3px;' >".htmlspecialchars(str_replace("\n","<br/>",$quotationProduct['product_description']), ENT_QUOTES)."</th>";
 				}
 				else {
 					if ($quotation['Quotation']['bool_print_images'] && $quotation['Quotation']['bool_print_delivery_time']){
-						$output.="<td style='width:30%;padding:3px;'>".$quotationProduct['product_description']."</th>";
+						$output.="<td style='width:30%;padding:3px;'>".htmlspecialchars(str_replace("\n","<br/>",$quotationProduct['product_description']),ENT_QUOTES)."</th>";
 					}
 					else {
-						$output.="<td style='width:40%;padding:3px;'>".$quotationProduct['product_description']."</th>";
+						$output.="<td style='width:40%;padding:3px;'>".htmlspecialchars(str_replace("\n","<br/>",$quotationProduct['product_description']),ENT_QUOTES)."</th>";
 					}
 				}
 				if ($quotation['Quotation']['bool_print_delivery_time']){
