@@ -1905,9 +1905,10 @@ class SalesOrdersController extends AppController {
 			$this->request->data = $this->SalesOrder->find('first', $options);
       $this->request->data['SalesOrder']['original_code' ]=$this->request->data['SalesOrder']['sales_order_code' ];
 			for ($sop=0;$sop<count($this->request->data['SalesOrderProduct']);$sop++){
+				if($this->request->data['SalesOrderProduct'][$sop]['sales_order_product_status_id']!=7){
 				$this->request->data['SalesOrderProduct'][$sop]['bool_no_iva']=$this->request->data['SalesOrderProduct'][$sop]['Product']['bool_no_iva'];
 				$requestProducts[]['SalesOrderProduct']=$this->request->data['SalesOrderProduct'][$sop];
-				
+				}
 			}
       $clientId=$this->request->data['SalesOrder']['client_id'];
       $vendorUserId=$this->request->data['SalesOrder']['vendor_user_id'];

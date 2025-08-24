@@ -422,16 +422,73 @@ class SalesOrderProductsController extends AppController {
  * @return void
  */
 	public function delete($id = null) {
+		  $this->loadModel('SalesOrder');	
+	
 		$this->SalesOrderProduct->id = $id;
 		if (!$this->SalesOrderProduct->exists()) {
 			throw new NotFoundException(__('Invalid sales order product'));
 		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->SalesOrderProduct->delete()) {
+		
+			$SalesOrderProduct=$this->SalesOrderProduct->find('first',array(
+			'conditions'=>array(
+				'SalesOrderProduct.id'=>$id,
+			)
+		));
+		
+		$SalesOrder1=$this->SalesOrder->find('first',array(
+			'conditions'=>array(
+				'SalesOrder.id'=>$SalesOrderProduct['SalesOrderProduct']['sales_order_id'],
+			)
+		));
+
+      
+	    $this->request->allowMethod('post', 'delete');
+	     
+		$SalesOrdertmp=$SalesOrder1['SalesOrder'];
+		$SalesOrderProducttmp=$SalesOrderProduct['SalesOrderProduct'];
+		    
+	    $data_order['price_subtotal']=$SalesOrdertmp['price_subtotal']-$SalesOrderProducttmp['product_total_price'];
+	    $data_order['bool_completely_delivered']=1;
+	 
+		if($SalesOrdertmp['bool_iva']==1){
+		$data_order['price_subtotal']=$data_order['price_subtotal'];
+		$data_order['price_iva']=$data_order['price_subtotal']*0.15;
+		$data_order['price_total']=$data_order['price_subtotal']*1.15;
+		}
+		else
+			$data_order['price_total']=$data_order['price_subtotal'];
+	  
+	    $this->SalesOrder->id=$SalesOrdertmp['id'];
+ 
+		if (!$this->SalesOrder->save($data_order)) {
+			echo "Problema al guardar la entrada";
+			pr($this->validateErrors($this->SalesOrder));
+			throw new Exception();
+		}
+		
+		$datasource=$this->SalesOrderProduct->getDataSource();
+		$datasource->begin();
+		try {
+		
+		$this->SalesOrderProduct->id=$id;
+		 if ($this->SalesOrderProduct->delete()) {
 			$this->Session->setFlash(__('The sales order product has been deleted.'));
 		} else {
 			$this->Session->setFlash(__('The sales order product could not be deleted. Please, try again.'));
+		} 
+			$datasource->commit();
+			}
+		catch(Exception $e){
+			$datasource->rollback();
+			pr($e);
+			$this->Session->setFlash(__('No se podía eliminar el producto.'), 'default',array('class' => 'error-message'));
+			 
+			return $this->redirect(array('controller' => 'sales_orders','action' => 'index'));
+	   
 		}
-		return $this->redirect(array('action' => 'index'));
+		
+		
+		return $this->redirect(array('controller' => 'sales_orders','action' => 'index'));
+	   
 	}
 }

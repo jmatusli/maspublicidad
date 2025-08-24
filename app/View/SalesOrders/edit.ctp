@@ -425,6 +425,40 @@
 		$('td.productid option:not(:selected)').attr('disabled', true);
 		$('td.salesorderproductstatusid option:not(:selected)').attr('disabled', true);
 	});
+		document.addEventListener('DOMContentLoaded', function() {
+    // Seleccionamos todos los enlaces de eliminacion por su clase.
+    const deleteLinks = document.querySelectorAll('.delete-link');
+
+    deleteLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault(); // Detenemos la accion por defecto del enlace
+
+            const message = this.getAttribute('data-confirm-message');
+			console.log(message);
+            const url = this.getAttribute('data-delete-url');
+
+            // Si el usuario confirma, creamos un formulario temporal y lo enviamos
+            if (confirm(message)) {
+                // Creamos un formulario en memoria
+                const form = document.createElement('form');
+                form.action = url;
+                form.method = 'post';
+                form.style.display = 'none';
+
+                // Anadimos un campo oculto para el metodo POST
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'POST';
+                form.appendChild(methodInput);
+
+                // Anadimos el formulario al DOM y lo enviamos
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    });
+});
 </script>
 <div class="salesOrders form fullwidth">
 <?php 
@@ -525,34 +559,59 @@
 						echo "<th>".__('IVA ?')."</th>";
 						echo "<th>".__('No producción')."</th>";
 						echo "<th>".__('Status')."</th>";
+						echo "<th>".__('Accion')."</th>";
 					echo "</tr>";
 				echo "</thead>";
 				echo "<tbody>";
 				$i=0;
 				foreach ($requestProducts as $product){
 					//pr($product);
-					echo "<tr row='".$i."'>";
-						echo "<td class='productid'>".$this->Form->input('SalesOrderProduct.'.$i.'.product_id',array('label'=>false,'default'=>$product['SalesOrderProduct']['product_id']))."</td>";
-						echo "<td class='productdescription'>".$this->Form->input('SalesOrderProduct.'.$i.'.product_description',['label'=>false,'readonly'=>'readonly','default'=>$product['SalesOrderProduct']['product_description']])."</td>";
+					    echo "<tr row='".$i."'>";
+						echo "<td class='productid'>".$this->Form->input('SalesOrderProduct.product_id',array('label'=>false,'default'=>$product['SalesOrderProduct']['product_id']))."</td>";
+						echo "<td class='productdescription'>".$this->Form->input('SalesOrderProduct.product_description',['label'=>false,'readonly'=>'readonly','default'=>$product['SalesOrderProduct']['product_description']])."</td>";
 						
-						echo "<td class='productquantity amount'>".$this->Form->input('SalesOrderProduct.'.$i.'.product_quantity',array('label'=>false,'default'=>$product['SalesOrderProduct']['product_quantity'],'type'=>'numeric','readonly'=>'readonly'))."</td>";
-						echo "<td class='productunitprice amount'><span class='currency'></span>".$this->Form->input('SalesOrderProduct.'.$i.'.product_unit_price',array('type'=>'decimal','label'=>false,'default'=>$product['SalesOrderProduct']['product_unit_price'],'readonly'=>'readonly'))."</td>";
+						echo "<td class='productquantity amount'>".$this->Form->input('SalesOrderProduct.product_quantity',array('label'=>false,'default'=>$product['SalesOrderProduct']['product_quantity'],'type'=>'numeric','readonly'=>'readonly'))."</td>";
+						echo "<td class='productunitprice amount'><span class='currency'></span>".$this->Form->input('SalesOrderProduct.product_unit_price',array('type'=>'decimal','label'=>false,'default'=>$product['SalesOrderProduct']['product_unit_price'],'readonly'=>'readonly'))."</td>";
 						
-						echo "<td class='producttotalprice amount'><span class='currency'></span>".$this->Form->input('SalesOrderProduct.'.$i.'.product_total_price',array('type'=>'decimal','label'=>false,'default'=>$product['SalesOrderProduct']['product_total_price'],'readonly'=>'readonly'))."</td>";
-						echo "<td class='boolnoiva hidden'>".$this->Form->input('SalesOrderProduct.'.$i.'.bool_no_iva',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_no_iva'],'onclick'=>'return false'))."</td>";
-						echo "<td class='booliva'>".$this->Form->input('SalesOrderProduct.'.$i.'.bool_iva',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_iva'],'onclick'=>'return false'))."</td>";
+						echo "<td class='producttotalprice amount'><span class='currency'></span>".$this->Form->input('SalesOrderProduct.product_total_price',array('type'=>'decimal','label'=>false,'default'=>$product['SalesOrderProduct']['product_total_price'],'readonly'=>'readonly'))."</td>";
+						echo "<td class='boolnoiva hidden'>".$this->Form->input('SalesOrderProduct.bool_no_iva',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_no_iva'],'onclick'=>'return false'))."</td>";
+						echo "<td class='booliva'>".$this->Form->input('SalesOrderProduct.bool_iva',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_iva'],'onclick'=>'return false'))."</td>";
 						//pr($product['SalesOrderProduct']);
 						if (($product['SalesOrderProduct']['sales_order_product_status_id']<=PRODUCT_STATUS_AUTHORIZED&&!$product['SalesOrderProduct']['bool_no_production'])||($product['SalesOrderProduct']['sales_order_product_status_id']<PRODUCT_STATUS_DELIVERED&&$product['SalesOrderProduct']['bool_no_production'])){
-							echo "<td class='boolnoproduction'>".$this->Form->input('SalesOrderProduct.'.$i.'.bool_no_production',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_no_production']))."</td>";					
+							echo "<td class='boolnoproduction'>".$this->Form->input('SalesOrderProduct.bool_no_production',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_no_production']))."</td>";					
 						}
 						else {
-							echo "<td class='boolnoproduction'>".$this->Form->input('SalesOrderProduct.'.$i.'.bool_no_production',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_no_production'],'onclick'=>'return false'))."</td>";					
+							echo "<td class='boolnoproduction'>".$this->Form->input('SalesOrderProduct.bool_no_production',array('label'=>false,'value'=>$product['SalesOrderProduct']['bool_no_production'],'onclick'=>'return false'))."</td>";					
 						}
-						echo "<td class='salesorderproductstatusid'>".$this->Form->input('SalesOrderProduct.'.$i.'.sales_order_product_status_id',array('label'=>false,'default'=>$product['SalesOrderProduct']['sales_order_product_status_id']))."</td>";
+						echo "<td class='salesorderproductstatusid'>".$this->Form->input('SalesOrderProduct.sales_order_product_status_id',array('label'=>false,'default'=>$product['SalesOrderProduct']['sales_order_product_status_id']))."</td>";
+					
+					 if($userRoleId == ROLE_ADMIN)
+					  { echo '<td>'.$this->Form->postButton($this->Html->tag('i', '', ['class' => 'glyphicon glyphicon-trash']) . ' Eliminar',
+						['#'],
+						[
+							'class' => 'btn btn-danger btn-sm delete-link',
+							'style' => 'text-decoration:none;',
+							'escape' => false,
+							'id' => 'delete-product-' . h($product['SalesOrderProduct']['id']),
+							'data-delete-url' => $this->Html->url([
+								'controller' => 'SalesOrderProducts',
+								'action' => 'delete',
+								$product['SalesOrderProduct']['id']
+							]),
+							'data-confirm-message' => '¿Está seguro que quiere eliminar la orden de venta # ' . h($product['SalesOrderProduct']['product_description']) . '?'
+						]).'</td>';
+					}
+                    else echo "<td>&nbsp;</td>";					
+					
+					
+					
 					echo "</tr>";
+					/*pr($product['SalesOrderProduct']['product_quantity']);
+					exit; */
 					$i++;
-				}
-					echo "<tr class='totalrow subtotal'>";
+                }				
+				
+				    echo "<tr class='totalrow subtotal'>";
 						echo "<td>Subtotal</td>";
 						echo "<td></td>";
 						echo "<td class='productquantity amount centered'><span style='text-align:center;'></span></td>";
