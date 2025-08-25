@@ -163,7 +163,7 @@
           if (!empty($salesOrder['ProductionOrder'])){
             echo '<h3>No se puede editar la orden de venta porque ya hay una orden de producción asociada</h3>';
           }
-          elseif (!empty($salesOrder['InvoiceSalesOrder'])){
+          elseif (!empty($salesOrder['InvoiceSalesOrder']) && $userRoleId != ROLE_ADMIN){
             echo '<h3>No se puede editar la orden de venta porque ya hay facturas asociadas</h3>';
           }
           elseif ($userRoleId != ROLE_ADMIN && !$bool_autorizar_permission && $salesOrder['SalesOrder']['bool_authorized']){
