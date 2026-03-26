@@ -15,7 +15,7 @@
 	define('ROLE_ASSISTANT','6');
 	define('ROLE_SALES_EXECUTIVE','7');
 	define('ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION','8');
-  define('ROLE_DEPARTMENT_BOSS','8');
+ //define('ROLE_DEPARTMENT_BOSS','8');
 	define('ROLE_OPERATOR','9');
 	define('ROLE_DEPARTMENT_SUPERVISOR_SALES','10');
   
@@ -321,17 +321,22 @@ class AppController extends Controller {
           'url' => ['controller' => 'quotations', 'action' => 'index'],
 					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_SALES],
 					'activesetter' => 'quotationmenu',
+        ],	[
+          'title' => 'Ventas',
+          'url' => ['controller' => 'sales_orders', 'action' => 'index'],
+					'permissions'=>[ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
+					'activesetter' => 'salesorders',
         ],
 			  [
           'title' => 'Producción',
           'url' => ['controller' => 'salesOrders', 'action' => 'reporteProduccionPendiente'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
 					'activesetter' => 'productionmenu',
         ],
         [
           'title' => 'Reportes',
           'url' => ['controller' => 'quotations', 'action' => 'verReporteGestionDeVentas'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_SALES],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
 					'activesetter' => 'reportmenu',
         ],
 				[
@@ -402,7 +407,7 @@ class AppController extends Controller {
 				[
           'title' => 'Ordenes de Venta',
           'url' => ['controller' => 'sales_orders', 'action' => 'index'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
 					'activesetter' => 'salesorders',
         ],
         [
@@ -534,7 +539,7 @@ class AppController extends Controller {
 				[
 					'title' => 'Gestión De Ventas',
 					'url' => ['controller' => 'quotations', 'action' => 'verReporteGestionDeVentas'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
 					'activesetter' => 'gestiondeventas',
 				],
 				[
@@ -558,7 +563,7 @@ class AppController extends Controller {
 				[
           'title' => 'Ordenes de Venta por Estado',
           'url' => ['controller' => 'sales_orders', 'action' => 'verReporteOrdenesDeVentaPorEstado'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
 					'activesetter' => 'salesordersperstatus',
         ],
 				[
@@ -1392,6 +1397,13 @@ class AppController extends Controller {
       case ROLE_DEPARTMENT_SUPERVISOR_SALES:
 				return [
 					'controller' => 'quotations',
+					'action' => 'index'
+				];
+				break;
+	  
+      case ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION:
+				return [
+					'controller' => 'sales_orders',
 					'action' => 'index'
 				];
 				break;
