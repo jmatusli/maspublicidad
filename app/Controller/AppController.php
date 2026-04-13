@@ -303,7 +303,7 @@ class AppController extends Controller {
 		));
 		$this->set(compact('recipientUsers'));
 		//pr($recipientUsers);
-		
+	 
 		$this->loadModel('MessageRecipient');
 		$unreadMessages=$this->MessageRecipient->find('list',array(
 			'conditions'=>array(
@@ -336,7 +336,13 @@ class AppController extends Controller {
         [
           'title' => 'Reportes',
           'url' => ['controller' => 'quotations', 'action' => 'verReporteGestionDeVentas'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_SALES],
+					'activesetter' => 'reportmenu',
+        ],
+		[
+          'title' => 'Reportes',
+          'url' => ['controller' => 'sales_orders', 'action' => 'verReporteCategoriasVentas'],
+					'permissions'=>[ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
 					'activesetter' => 'reportmenu',
         ],
 				[
@@ -539,7 +545,7 @@ class AppController extends Controller {
 				[
 					'title' => 'Gestión De Ventas',
 					'url' => ['controller' => 'quotations', 'action' => 'verReporteGestionDeVentas'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_SALES_EXECUTIVE],
 					'activesetter' => 'gestiondeventas',
 				],
 				[
@@ -563,7 +569,7 @@ class AppController extends Controller {
 				[
           'title' => 'Ordenes de Venta por Estado',
           'url' => ['controller' => 'sales_orders', 'action' => 'verReporteOrdenesDeVentaPorEstado'],
-					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
+					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT,ROLE_DEPARTMENT_SUPERVISOR_SALES],
 					'activesetter' => 'salesordersperstatus',
         ],
 				[
@@ -583,6 +589,12 @@ class AppController extends Controller {
           'url' => ['controller' => 'invoices', 'action' => 'reporteVentasAnualesPorCliente'],
 					'permissions'=>[ROLE_ADMIN,ROLE_ASSISTANT],
 					'activesetter' => 'ventasanualesporcliente',
+        ],
+        [ 
+          'title' => 'Ordenes de venta por categoria',
+          'url' => ['controller' => 'sales_orders', 'action' => 'verReporteCategoriasVentas'],
+					'permissions'=>[ROLE_ADMIN,ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION],
+					'activesetter' => 'reportmenuprodc',
         ],
       ],			
 			'sub-menu-products' => [
@@ -826,6 +838,7 @@ class AppController extends Controller {
     );
 		$currentController= $this->params['controller'];
 		$currentAction= $this->params['action'];
+	 
 		$currentParameter=0;
 		$this->set(compact('currentController','currentAction','currentParameter'));
 		if (!empty($this->params['pass'])){
@@ -1162,11 +1175,16 @@ class AppController extends Controller {
 			$activeSub="quotationsperclient";
 			$sub="sub-menu-reports";
 		}
-		else if ($currentAction=="verReporteOrdenesDeVentaPorEstado" && $currentController=="sales_orders"){
+		else if ($currentAction=="verReporteCategoriasVentas" && $currentController=="sales_orders"){
+			$activeMenu="reportmenu";
+			$activeSub="reportmenuprodc";
+			$sub="sub-menu-reports";
+			 
+		} else if ($currentAction=="verReporteOrdenesDeVentaPorEstado" && $currentController=="sales_orders"){
 			$activeMenu="reportmenu";
 			$activeSub="salesordersperstatus";
 			$sub="sub-menu-reports";
-		}
+		} 
 		else if ($currentAction=="verReporteFacturasPorEjecutivo" && $currentController=="invoices"){
 			$activeMenu="reportmenu";
 			$activeSub="invoicesperexecutive";

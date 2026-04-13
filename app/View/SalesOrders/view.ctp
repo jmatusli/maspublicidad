@@ -159,11 +159,12 @@
           echo "<li>".$this->Html->link(__('Guardar como pdf'), ['action' => 'viewPdf','ext'=>'pdf', $salesOrder['SalesOrder']['id'],$filename],['target'=>'_blank'])."</li>";
         echo '</ul>';
         echo '<br/>';
+		 
         if ($bool_edit_permission){
           if (!empty($salesOrder['ProductionOrder'])){
             echo '<h3>No se puede editar la orden de venta porque ya hay una orden de producción asociada</h3>';
           }
-          elseif (!empty($salesOrder['InvoiceSalesOrder']) && $userRoleId != ROLE_ADMIN){
+          elseif (!empty($salesOrder['InvoiceSalesOrder']) && ($userRoleId != ROLE_ADMIN)){
             echo '<h3>No se puede editar la orden de venta porque ya hay facturas asociadas</h3>';
           }
           elseif ($userRoleId != ROLE_ADMIN && !$bool_autorizar_permission && $salesOrder['SalesOrder']['bool_authorized']){
@@ -179,9 +180,14 @@
         
         echo '<ul style="list-style:none;">';
           echo "<li>".$this->Html->link(__('List Sales Orders'), array('action' => 'index'))."</li>";
+		  
+		  
+		  if ($bool_addsales_permission){
           echo '<li>'.$this->Html->link(__('New Sales Order'), ['action' => 'add']).'</li>';
+		  
           echo '<br/>' ;
-          if (empty($salesOrder['ProductionOrder']) && $bool_production_order_crear_permission){
+          }
+		  if (empty($salesOrder['ProductionOrder']) && $bool_production_order_crear_permission){
             echo '<li>'.$this->Html->link('Crear Orden de Producción', ['controller'=>'productionOrders','action' => 'crear',$salesOrder['SalesOrder']['id']],['class'=>'btn btn-primary']).'</li>';
             echo '<br/>' ;
           }
@@ -503,7 +509,10 @@
       echo '<h3>No se puede eliminar la orden de venta porque ya hay facturas asociadas</h3>';
     }
     else {
-      echo $this->Form->postLink(__($this->Html->tag('i', '', ['class' => 'glyphicon glyphicon-fire']).' '.'Eliminar Orden de Venta'), ['action' => 'delete', $salesOrder['SalesOrder']['id']], ['class' => 'btn btn-danger btn-sm','style'=>'text-decoration:none;','escape'=>false], __('Está seguro que quiere eliminar la orden de venta # %s?  PELIGRO, NO SE PUEDE DESHACER ESTA OPERACIÓN.  LOS DATOS DESPARECERÁN DE LA BASE DE DATOS!!!', $salesOrder['SalesOrder']['sales_order_code']));
+      echo $this->Form->postLink(__($this->Html->tag('i', '', ['class' => 'glyphicon glyphicon-fire']).' '.'Eliminar Orden de Venta'), 
+	  ['action' => 'delete', $salesOrder['SalesOrder']['id']], 
+	  ['class' => 'btn btn-danger btn-sm','style'=>'text-decoration:none;','escape'=>false], 
+	  __('Está seguro que quiere eliminar la orden de venta # %s?  PELIGRO, NO SE PUEDE DESHACER ESTA OPERACIÓN.  LOS DATOS DESPARECERÁN DE LA BASE DE DATOS!!!', $salesOrder['SalesOrder']['sales_order_code']));
       echo '<br/>';
     }
 	}
