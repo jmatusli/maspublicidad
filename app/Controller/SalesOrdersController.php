@@ -1657,6 +1657,7 @@ class SalesOrdersController extends AppController {
 	
 
 	public function index() {
+		
 
     $this->loadModel('Quotation');
 
@@ -1957,8 +1958,8 @@ class SalesOrdersController extends AppController {
 		
 
 		$userConditions=[];
-
-		if ($userRoleId != ROLE_ADMIN && !$canSeeAllUsers && !$canSeeAllSalesExecutives  && $user_id > 0) { 
+	 
+		if ($userRoleId != ROLE_ADMIN && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION  && !$canSeeAllUsers && !$canSeeAllSalesExecutives  && $user_id > 0) { 
 
 			$userConditions=['User.id'=>$user_id];
 
@@ -2006,7 +2007,7 @@ class SalesOrdersController extends AppController {
 
     $conditions=[];
 
-		if (($userRoleId != ROLE_ADMIN && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || $user_id != 0) { 
+		if (($userRoleId != ROLE_ADMIN && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION  && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || $user_id != 0) { 
 
 			$quotationList=$this->Quotation->find('list',[
 
