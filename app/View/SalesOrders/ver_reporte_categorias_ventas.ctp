@@ -337,7 +337,7 @@ echo $this->Pagination->renderAjaxTable($dataSourceUrl, $columns, $options);
     
  
     window["paginationComponentreporteCategoriasTable"] = new PaginationComponent({
-        dataSourceUrl: "/maspublicidad0/sales_orders/getReporteCategoriasVentasData",
+        dataSourceUrl: "/maspublicidad/sales_orders/getReporteCategoriasVentasData",
         tableId: "reporteCategoriasTable",
         columns: [{"title":"Fecha","field":"SalesOrder.sales_order_date","width":"10%"},{"title":"C\u00f3digo Orden","field":"SalesOrder.sales_order_code","width":"15%"},{"title":"Cliente","field":"Client.name","width":"20%"},{"title":"Categor\u00eda","field":"ProductCategory.0.name_category","width":"20%"},{"title":"Producto","field":"SalesOrderProduct.0.sale_description","width":"20%"},{"title":"Cantidad","field":"SalesOrderProduct.0.product_quantity","width":"10%","cssClass":"number centered"},{"title":"Acciones","field":"Acciones","width":"5%"}],
         pageSize: 50,
@@ -855,7 +855,7 @@ function cargarEstados() {
     select.append('<option value="">Cargando estados...</option>');
     
     $.ajax({
-        url: '/maspublicidad0/production_order_states/getEstados',
+        url: '/maspublicidad/production_order_states/getEstados',
         type: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -916,7 +916,7 @@ function guardarEstado() {
     };
     
     $.ajax({
-        url: '/maspublicidad0/sales_orders/cambiarEstadoOrden',
+        url: '/maspublicidad/sales_orders/cambiarEstadoOrden',
         type: 'POST',
         data: data,
         dataType: 'json',
