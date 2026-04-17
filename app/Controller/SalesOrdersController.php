@@ -747,7 +747,7 @@ class SalesOrdersController extends AppController {
     //echo 'can see all sales executives:'.$canSeeAllSalesExecutives.'<br/>';
 
     
-
+//echo $canSeeExecutiveTables;exit;
     $departmentId=0;
 
     
@@ -1704,13 +1704,12 @@ class SalesOrdersController extends AppController {
     
 
     $canSeeAllSalesExecutives=$this->UserPageRight->hasUserPageRight('VER_LISTA_TODOS_VENDEDORES',$userRoleId,$loggedUserId,'Quotations','index');
-
+ 
     $this->set(compact('canSeeAllSalesExecutives'));
 
     //echo 'can see all sales executives:'.$canSeeAllSalesExecutives.'<br/>';
 
-    
-
+  
 		$currencyId=CURRENCY_USD;
 
 		$invoiceDisplay=0;
@@ -1887,6 +1886,7 @@ class SalesOrdersController extends AppController {
 
 		else if (!empty($_SESSION['startDate']) && !empty($_SESSION['endDate'])){
 
+
 			//echo "retrieving values from session<br/>";
 
 			$startDate=$_SESSION['startDate'];
@@ -1932,7 +1932,7 @@ class SalesOrdersController extends AppController {
 		}
 
 		
-
+  
 		$_SESSION['startDate']=$startDate;
 
 		$_SESSION['endDate']=$endDate;
@@ -1973,7 +1973,7 @@ class SalesOrdersController extends AppController {
 
 		]);
 
-		
+		 
 
     foreach ($userPeriod as $key=>$value){
 
@@ -2007,7 +2007,7 @@ class SalesOrdersController extends AppController {
 
     $conditions=[];
 
-		if (($userRoleId != ROLE_ADMIN && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION  && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || $user_id != 0) { 
+		if (($userRoleId != ROLE_ADMIN && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION  && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || ($user_id != 0 && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION )) { 
 
 			$quotationList=$this->Quotation->find('list',[
 
@@ -2114,6 +2114,7 @@ class SalesOrdersController extends AppController {
 			'conditions' => $authorizationPendingForPeriodConditions,
 
 		]);
+		
 
     $this->Paginator->settings = [
 
@@ -2208,6 +2209,8 @@ class SalesOrdersController extends AppController {
 			'conditions' => $authorizationPendingBeforePeriodConditions,
 
 		]);
+		
+
 
     $this->Paginator->settings = [
 
@@ -2281,7 +2284,7 @@ class SalesOrdersController extends AppController {
 
 		}
 
-		
+	//	print_r( $salesOrders['authorization_pending_before_period']);exit;
 
     $authorizationPendingAfterPeriodConditions=$conditions;
 
@@ -2576,9 +2579,7 @@ class SalesOrdersController extends AppController {
 			}
 
 		}
-
-		
-
+ 
     $this->set(compact('salesOrders'));
 
     $this->set(compact('userPeriodCS','userPeriodUSD'));

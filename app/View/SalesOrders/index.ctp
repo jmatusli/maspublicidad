@@ -73,7 +73,7 @@
             echo $this->Form->input('Report.startdate',['type'=>'date','label'=>__('Start Date'),'dateFormat'=>'DMY','default'=>$startDate,'minYear'=>2015,'maxYear'=>date('Y')]);
             echo $this->Form->input('Report.enddate',['type'=>'date','label'=>__('End Date'),'dateFormat'=>'DMY','default'=>$endDate,'minYear'=>2015,'maxYear'=>date('Y')]);
             echo "<br/>";
-            if ($userRoleId == ROLE_ADMIN || $canSeeAllUsers || $canSeeAllSalesExecutives) { 
+            if ($userRoleId == ROLE_ADMIN || $userRoleId == ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION ||  $canSeeAllUsers || $canSeeAllSalesExecutives) { 
               echo $this->Form->input('Report.user_id',['label'=>'Mostrar Usuario','options'=>$users,'default'=>$user_id,'empty'=>['0'=>'-- Todos Usuarios --']]);
             }
             else {
@@ -87,8 +87,10 @@
           echo "<button id='nextmonth' class='monthswitcher'>Mes Siguiente</button>";
         echo "<br/>";	
         echo $this->Form->submit(__('Refresh'),['name'=>'refresh', 'id'=>'refresh','div'=>['class'=>'submit']]); 
+         if ($userRoleId == ROLE_ADMIN || $canSeeAllUsers || $canSeeAllSalesExecutives) { 
         echo $this->Form->submit(__('Autorizar todas Ordenes de Venta seleccionados'),['name'=>'authorize_all', 'id'=>'authorize_all','style'=>'width:30em;','div'=>['class'=>'submit']]); 
         echo "<br/>";	
+        }
         echo $this->Html->link(__('Guardar como Excel'), ['action' => 'guardarResumenOrdenesDeVenta'], ['class' => 'btn btn-primary']);
       echo "</div>";
       echo "<div class='col-md-6'>";		
@@ -312,7 +314,7 @@
             $pageRow.="<td class='selector'>".$this->Form->input('Report.selector.'.$salesOrder['SalesOrder']['id'],array('checked'=>true,'label'=>false))."</td>";
           }
           if ($user_id==0){
-            $pageRow.="<td>".$this->Html->link($salesOrder['Quotation']['User']['first_name']." ".$salesOrder['Quotation']['User']['last_name'], array('controller' => 'users', 'action' => 'view', $salesOrder['Quotation']['User']['id']))."</td>";
+            $pageRow.="<td>".$this->Html->link("jodete".$salesOrder['Quotation']['User']['first_name']." ".$salesOrder['Quotation']['User']['last_name'], array('controller' => 'users', 'action' => 'view', $salesOrder['Quotation']['User']['id']))."</td>";
           }
           $pageRow.="<td>".$salesOrderDate->format('d-m-Y')."</td>";
           $pageRow.="<td>".$this->Html->Link($salesOrder['SalesOrder']['sales_order_code'].($salesOrder['SalesOrder']['bool_annulled']?" (Anulada)":""),array('action'=>'view',$salesOrder['SalesOrder']['id']))."</td>";
