@@ -87,7 +87,7 @@
           echo "<button id='nextmonth' class='monthswitcher'>Mes Siguiente</button>";
         echo "<br/>";	
         echo $this->Form->submit(__('Refresh'),['name'=>'refresh', 'id'=>'refresh','div'=>['class'=>'submit']]); 
-         if ($userRoleId == ROLE_ADMIN || $canSeeAllUsers || $canSeeAllSalesExecutives) { 
+         if (($userRoleId == ROLE_ADMIN || $canSeeAllUsers || $canSeeAllSalesExecutives) && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) { 
         echo $this->Form->submit(__('Autorizar todas Ordenes de Venta seleccionados'),['name'=>'authorize_all', 'id'=>'authorize_all','style'=>'width:30em;','div'=>['class'=>'submit']]); 
         echo "<br/>";	
         }
