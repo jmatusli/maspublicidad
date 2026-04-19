@@ -1048,13 +1048,13 @@ class SalesOrdersController extends AppController {
 
     ];
 
-		if (($userRoleId != ROLE_ADMIN && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || $userId != 0) { 
+		if (($userRoleId != ROLE_ADMIN && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || ($userId != 0 && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION)) { 
 
 			$conditions['SalesOrder.vendor_user_id']=$userId;
 
 		}
 
-    
+    pr($conditions);
 
     $contain=[
 
