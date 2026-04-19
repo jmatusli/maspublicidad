@@ -1054,7 +1054,6 @@ class SalesOrdersController extends AppController {
 
 		}
 
-    pr($conditions);
 
     $contain=[
 
