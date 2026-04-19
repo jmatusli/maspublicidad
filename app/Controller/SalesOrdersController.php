@@ -1004,7 +1004,7 @@ class SalesOrdersController extends AppController {
 
 		$userConditions=[];
 
-		if ($userRoleId != ROLE_ADMIN && !$canSeeAllUsers && !$canSeeAllSalesExecutives  && $userId > 0) { 
+		if (($userRoleId != ROLE_ADMIN && !$canSeeAllUsers && !$canSeeAllSalesExecutives  && $userId > 0)||$userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) { 
 
 			$userConditions=['User.id'=>$userId];
 
@@ -1645,6 +1645,7 @@ class SalesOrdersController extends AppController {
   }
 
   
+
 
   public function guardarReporteProduccionPendiente() {
 
