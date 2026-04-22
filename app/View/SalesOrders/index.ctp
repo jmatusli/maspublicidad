@@ -314,7 +314,7 @@
             $pageRow.="<td class='selector'>".$this->Form->input('Report.selector.'.$salesOrder['SalesOrder']['id'],array('checked'=>true,'label'=>false))."</td>";
           }
           if ($user_id==0){
-            $pageRow.="<td>".$this->Html->link("jodete".$salesOrder['Quotation']['User']['first_name']." ".$salesOrder['Quotation']['User']['last_name'], array('controller' => 'users', 'action' => 'view', $salesOrder['Quotation']['User']['id']))."</td>";
+            $pageRow.="<td>".$this->Html->link($salesOrder['Quotation']['User']['first_name']." ".$salesOrder['Quotation']['User']['last_name'], array('controller' => 'users', 'action' => 'view', $salesOrder['Quotation']['User']['id']))."</td>";
           }
           $pageRow.="<td>".$salesOrderDate->format('d-m-Y')."</td>";
           $pageRow.="<td>".$this->Html->Link($salesOrder['SalesOrder']['sales_order_code'].($salesOrder['SalesOrder']['bool_annulled']?" (Anulada)":""),array('action'=>'view',$salesOrder['SalesOrder']['id']))."</td>";
