@@ -66,6 +66,8 @@
 <?php 
 	$excelOutput='';
   foreach ($salesOrders as $salesOrderType=>$salesOrdersData){
+    // DEBUG: Mostrar qué sección se está procesando y cuántos datos tiene
+    echo "<!-- DEBUG: Sección $salesOrderType tiene ".count($salesOrdersData)." elementos -->";
     if ($salesOrderType == 'authorization_pending'){
       $tableId="Ordenes_de_Venta_No_Autorizadas";
     }
@@ -415,8 +417,8 @@
               else {
                 echo $this->Form->input('Report.user_id',['label'=>__('Mostrar Usuario'),'options'=>$users,'value'=>$userId]);
               }
-              echo $this->Form->input('Report.department_id',['default'=>$departmentId,'empty'=>[0=>'-- Departamento --']]);
-              echo $this->Form->input('Report.authorized_option_id',['label'=>__('Mostrar Autorizados'),'default'=>$authorizedOptionId]);
+              echo $this->Form->input('Report.department_id',['label'=>'Departamento','options'=>$departments,'value'=>$departmentId,'empty'=>[0=>'-- Departamento --']]);
+              echo $this->Form->input('Report.authorized_option_id',['label'=>__('Mostrar Autorizados'),'options'=>$authorizedOptions,'value'=>$authorizedOptionId]);
             echo "</fieldset>";
             echo $this->Form->submit(__('Refresh'),['name'=>'refresh', 'id'=>'refresh','div'=>['class'=>'submit']]); 
             echo "<br/>";	

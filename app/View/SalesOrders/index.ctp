@@ -70,9 +70,12 @@
 			echo "<div class='col-md-6'>";		
         echo $this->Form->create('Report');
           echo "<fieldset>";
+		   if ($userRoleId == ROLE_ADMIN  || $canSeeAllSalesExecutives) { 
+          
             echo $this->Form->input('Report.startdate',['type'=>'date','label'=>__('Start Date'),'dateFormat'=>'DMY','default'=>$startDate,'minYear'=>2015,'maxYear'=>date('Y')]);
             echo $this->Form->input('Report.enddate',['type'=>'date','label'=>__('End Date'),'dateFormat'=>'DMY','default'=>$endDate,'minYear'=>2015,'maxYear'=>date('Y')]);
             echo "<br/>";
+		}	
             if ($userRoleId == ROLE_ADMIN || $userRoleId == ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION ||  $canSeeAllUsers || $canSeeAllSalesExecutives) { 
               echo $this->Form->input('Report.user_id',['label'=>'Mostrar Usuario','options'=>$users,'default'=>$user_id,'empty'=>['0'=>'-- Todos Usuarios --']]);
             }
@@ -188,8 +191,11 @@
       echo "</div>";
     echo "</div>";
   echo "</div>";  
-	$startDateTime=new DateTime($startDate);
-	$endDateTime=new DateTime($endDate);
+	// Solo usar fechas si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+	if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+		$startDateTime=new DateTime($startDate);
+		$endDateTime=new DateTime($endDate);
+	}
 ?> 
 </div>
 <div class='actions'>
@@ -213,8 +219,23 @@
 <?php
 	$excelOutput='';
   //pr($salesOrders);
+     if (/*$userRoleId == ROLE_ADMIN  ||*/ $userRoleId==ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) { 
+	 $salesOrderstmp['authorized']=$salesOrders['authorized'];
+	 $salesOrders=$salesOrderstmp;
+	 
+
+ 
+	 $salesOrders['authorized'] = array_filter($salesOrders['authorized'], function($item) {
+    // Retorna true si el índice existe y su conteo es 0
+    return isset($item['InvoiceSalesOrder']) && count($item['InvoiceSalesOrder']) == 0;
+});
+	 
+          }
+ 	 
+
   foreach ($salesOrders as $salesOrderType=>$salesOrdersData){
-    $pageHeader="";
+
+     $pageHeader="";
     $excelHeader="";
     $pageHeader.="<thead>";
       $pageHeader.="<tr>";
@@ -240,13 +261,13 @@
     $excelHeader.="<thead>";		
       if ($user_id==0){
         $excelHeader.="<tr><th colspan='6' align='center'>".COMPANY_NAME."</th></tr>";	
-        $excelHeader.="<tr><th colspan='6' align='center'>".__('Resumen de Ordenes de Venta')." de ".$startDateTime->format('d-m-Y')." hasta ".$endDateTime->format('d-m-Y')."</th></tr>";
+        $excelHeader.="<tr><th colspan='6' align='center'>".__('Resumen de Ordenes de Venta').($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION ? " de ".$startDateTime->format('d-m-Y')." hasta ".$endDateTime->format('d-m-Y') : "")."</th></tr>";
         $excelHeader.="<tr>";
           $excelHeader.="<th>".$this->Paginator->sort('user_id','Vendedor')."</th>";
       }
       else {
         $excelHeader.="<tr><th colspan='6' align='center'>".COMPANY_NAME."</th></tr>";	
-        $excelHeader.="<tr><th colspan='6' align='center'>".__('Resumen de Ordenes de Venta')." de ".$startDateTime->format('d-m-Y')." hasta ".$endDateTime->format('d-m-Y')."</th></tr>";
+        $excelHeader.="<tr><th colspan='6' align='center'>".__('Resumen de Ordenes de Venta').($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION ? " de ".$startDateTime->format('d-m-Y')." hasta ".$endDateTime->format('d-m-Y') : "")."</th></tr>";
         $excelHeader.="<tr>";
       }
         $excelHeader.="<th>".$this->Paginator->sort('sales_order_date')."</th>";
@@ -269,6 +290,7 @@
     $statustotalUSD=0;
     
     foreach ($salesOrdersData as $salesOrder){ 
+ 
       if (
         (
           $invoiceDisplay == 0 
@@ -324,7 +346,7 @@
           else {
             $pageRow.="<td>";
             for ($iso=0;$iso<count($salesOrder['InvoiceSalesOrder']);$iso++){
-              $pageRow.=$this->Html->Link($salesOrder['InvoiceSalesOrder'][$iso]['Invoice']['invoice_code'],array('controller'=>'invoices','action'=>'view',$salesOrder['InvoiceSalesOrder'][$iso]['Invoice']['id']))."";
+              $pageRow.=$this->Html->Link("23".$salesOrder['InvoiceSalesOrder'][$iso]['Invoice']['invoice_code'],array('controller'=>'invoices','action'=>'view',$salesOrder['InvoiceSalesOrder'][$iso]['Invoice']['id']))."";
               if ($iso<count($salesOrder['InvoiceSalesOrder'])-1){
                 $pageRow.="<br/>";
               }

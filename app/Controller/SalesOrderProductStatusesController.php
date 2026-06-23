@@ -16,6 +16,16 @@ class SalesOrderProductStatusesController extends AppController {
 	public $components = array('Paginator');
 
 /**
+ * beforeFilter method
+ *
+ * @return void
+ */
+	public function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->allow('getEstados');
+	}
+
+/**
  * index method
  *
  * @return void
@@ -154,5 +164,44 @@ class SalesOrderProductStatusesController extends AppController {
 			$this->Session->setFlash(__('The sales order product status could not be deleted. Please, try again.'));
 		}
 		return $this->redirect(array('action' => 'index'));
+	}
+
+/**
+ * getEstados method - AJAX endpoint para obtener lista de estados
+ *
+ * @return void
+ */
+	public function getEstados() {
+		$this->autoRender = false;
+		$this->layout = 'ajax';
+		
+		header('Content-Type: application/json');
+		
+		try {
+			$this->SalesOrderProductStatus->recursive = -1;
+			
+			$estados = $this->SalesOrderProductStatus->find('all', array(
+				'fields' => array('SalesOrderProductStatus.id', 'SalesOrderProductStatus.status'),
+				'order' => array('SalesOrderProductStatus.status' => 'ASC')
+			));
+			
+			$estadosList = array();
+			foreach ($estados as $estado) {
+				$estadosList[] = array(
+					'id' => $estado['SalesOrderProductStatus']['id'],
+					'status' => $estado['SalesOrderProductStatus']['status']
+				);
+			}
+			
+			echo json_encode(array(
+				'success' => true,
+				'estados' => $estadosList
+			));
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'success' => false,
+				'message' => $e->getMessage()
+			));
+		}
 	}
 }

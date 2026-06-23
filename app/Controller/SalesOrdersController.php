@@ -26,7 +26,7 @@ class SalesOrdersController extends AppController {
 
 		$this->Auth->allow('getReporteCategoriasVentasData', 'ajaxPaginarCategoriasVentas');
 
-		$this->Auth->allow('getSalesOrdersForClient','getSalesOrderProducts','getSalesOrderInfo','getsalesorderinfonofinance','reporteProduccionPendiente','cambiarEstadoOrden');		
+		$this->Auth->allow('getSalesOrdersForClient','getSalesOrderProducts','getSalesOrderInfo','getsalesorderinfonofinance','reporteProduccionPendiente','cambiarEstadoOrden','getResumenEstados');		
 
 	}
 
@@ -749,6 +749,7 @@ class SalesOrdersController extends AppController {
     
 //echo $canSeeExecutiveTables;exit;
     $departmentId=0;
+    $userId=0;
 
     
 
@@ -770,16 +771,22 @@ class SalesOrdersController extends AppController {
 
 		$this->set(compact('authorizedOptions'));
 
-    
-
 		$currencyId=CURRENCY_USD;
+
+		//echo $canSeeExecutiveTables;exit;
+    $departmentId=0;
+    $userId=0;
 
 		$authorizedOptionId=AUTHORIZATION_ONLY;
 
-		
+		// Inicializar variables de fecha solo si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+		if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+			$startDate = date("Y-m-01");
+			$endDate = date("Y-m-d");
+			$endDatePlusOne = date("Y-m-d", strtotime($endDate."+1 days"));
+		}
 
     if ($this->request->is('post')) {
-
       //pr($this->request->data);
 
       //$startDateArray=$this->request->data['Report']['startdate'];
@@ -814,44 +821,17 @@ class SalesOrdersController extends AppController {
 
 		}
 
-		else if (!empty($_SESSION['startDate']) && !empty($_SESSION['endDate'])){
-
-			//echo "retrieving values from session<br/>";
-
-			//$startDate=$_SESSION['startDate'];
-
-			//$endDate=$_SESSION['endDate'];
-
-			//$endDatePlusOne=date("Y-m-d",strtotime($endDate."+1 days"));
-
-			//if ($this->Session->check('currencyId')){
-
-			//	$currencyId=$_SESSION['currencyId'];
-
-			//}
-
-			if ($this->Session->check('userId')){
-
-				$userId=$_SESSION['userId'];
-
-			}
-
-			if ($this->Session->check('authorizedOptionId')){
-
-				$authorizedOptionId=$_SESSION['authorizedOptionId'];
-
-			}
-
-		}
-
 		else {
-
-			//$startDate = date("Y-m-01");
-
-			//$endDate=date("Y-m-d",strtotime(date("Y-m-d")));
-
-			//$endDatePlusOne= date( "Y-m-d", strtotime( date("Y-m-d")."+1 days" ) );
-
+			// Recuperar valores de sesión para mantener filtros
+			if ($this->Session->check('userId')){
+				$userId=$_SESSION['userId'];
+			}
+			if ($this->Session->check('departmentId')){
+				$departmentId=$_SESSION['departmentId'];
+			}
+			if ($this->Session->check('authorizedOptionId')){
+				$authorizedOptionId=$_SESSION['authorizedOptionId'];
+			}
 		}
 
 		
@@ -864,11 +844,16 @@ class SalesOrdersController extends AppController {
 
 		$_SESSION['departmentId']=$departmentId;
 
+		$_SESSION['userId']=$userId;
+
 		$_SESSION['authorizedOptionId']=$authorizedOptionId;
 
 		//echo 'department id is '.$departmentId.'<br/>';
 
-		//$this->set(compact('startDate','endDate'));
+		//// Solo pasar fechas a la vista si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+		if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+			$this->set(compact('startDate','endDate'));
+		}
 
 		$this->set(compact('userId','currencyId'));
 
@@ -1048,18 +1033,39 @@ class SalesOrdersController extends AppController {
 
     ];
 
-		if (($userRoleId != ROLE_ADMIN && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || ($userId != 0 && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION)) { 
-
+		// Aplicar filtro de usuario si se selecciona uno
+		if ($userId != 0 && $userId != '0') { 
 			$conditions['SalesOrder.vendor_user_id']=$userId;
-
 		}
 
+		// Aplicar filtros directamente a las condiciones base
+		if ($departmentId != 0) {
+			$conditions[] = "SalesOrder.id IN (
+				SELECT DISTINCT so.id 
+				FROM sales_orders so
+				INNER JOIN sales_order_products sop ON so.id = sop.sales_order_id
+				INNER JOIN products p ON sop.product_id = p.id
+				WHERE p.product_category_id = $departmentId
+			)";
+		}
+		
+		if ($userId != 0 && $userId != '0') {
+			$conditions['SalesOrder.vendor_user_id'] = $userId;
+		}
+
+		
 
     $contain=[
 
       'Client',
 
       'Currency',
+
+      'SalesOrderProduct' => [
+        'Product' => [
+          'fields' => ['Product.id', 'Product.product_category_id']
+        ]
+      ],
 
       'InvoiceSalesOrder'=>[
 
@@ -1145,9 +1151,15 @@ class SalesOrdersController extends AppController {
 
     $authorizationPendingForPeriodConditions['SalesOrder.bool_annulled']=false;
 
-    $authorizationPendingForPeriodConditions['SalesOrder.sales_order_date >=']=$startDate;
+    // Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $authorizationPendingForPeriodConditions['SalesOrder.sales_order_date >=']=$startDate;
+    }
 
-		$authorizationPendingForPeriodConditions['SalesOrder.sales_order_date <']=$endDatePlusOne;
+		// Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $authorizationPendingForPeriodConditions['SalesOrder.sales_order_date <']=$endDatePlusOne;
+    }
 
     
 
@@ -1241,7 +1253,10 @@ class SalesOrdersController extends AppController {
 
     $authorizationPendingBeforePeriodConditions['SalesOrder.bool_annulled']=false;
 
-    $authorizationPendingBeforePeriodConditions['SalesOrder.sales_order_date <']=$startDate;
+    // Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $authorizationPendingBeforePeriodConditions['SalesOrder.sales_order_date <']=$startDate;
+    }
 
 		
 
@@ -1335,9 +1350,12 @@ class SalesOrdersController extends AppController {
 
     $authorizationPendingAfterPeriodConditions['SalesOrder.bool_annulled']=false;
 
-    $authorizationPendingAfterPeriodConditions['SalesOrder.sales_order_date >=']=$endDatePlusOne;
+    // Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $authorizationPendingAfterPeriodConditions['SalesOrder.sales_order_date >=']=$endDatePlusOne;
+    }
 
-    
+    $this->applyFilters($authorizationPendingAfterPeriodConditions, $userId, $departmentId);
 
     //pr($authorizationPendingBeforePeriodConditions);
 
@@ -1433,9 +1451,9 @@ class SalesOrdersController extends AppController {
 
 		//$authorizedConditions['SalesOrder.sales_order_date <']=$endDatePlusOne;
 
-    //pr($authorizedConditions);
+	$this->applyFilters($authorizedConditions, $userId, $departmentId);
 
-		$salesOrderCount=$this->SalesOrder->find('count', [
+    $salesOrderCount=$this->SalesOrder->find('count', [
 
 			'fields'=>['SalesOrder.id'],
 
@@ -1453,7 +1471,7 @@ class SalesOrdersController extends AppController {
 
 			'order'=>'SalesOrder.sales_order_date DESC,SalesOrder.sales_order_code DESC',
 
-			'limit'=>($salesOrderCount!=0?$salesOrderCount:1),
+			'limit'=>50,
 
 		];
 
@@ -1646,7 +1664,34 @@ class SalesOrdersController extends AppController {
   
 
 
-  public function guardarReporteProduccionPendiente() {
+  private function applyFilters(&$conditions, $userId, $departmentId) {
+		// DEBUG: Verificar si se llama la función
+		if ($departmentId != 0) {
+			// DEBUG: Mostrar qué departamento se está filtrando
+			$salesOrderIds = $this->SalesOrder->query("
+				SELECT DISTINCT so.id 
+				FROM sales_orders so
+				INNER JOIN sales_order_products sop ON so.id = sop.sales_order_id
+				INNER JOIN products p ON sop.product_id = p.id
+				WHERE p.product_category_id = $departmentId
+			");
+			
+			$ids = array();
+			foreach($salesOrderIds as $row) {
+				$ids[] = $row['so']['id'];
+			}
+			
+			// DEBUG: Forzar una condición que siempre filtre
+			if (!empty($ids)) {
+				$conditions['SalesOrder.id'] = $ids;
+			} else {
+				// Si no hay resultados, mostrar vacío
+				$conditions['SalesOrder.id'] = -1;
+			}
+		}
+	}
+
+public function guardarReporteProduccionPendiente() {
 
 		$exportData=$_SESSION['reporteProduccionPendiente'];
 
@@ -1688,7 +1733,9 @@ class SalesOrdersController extends AppController {
     $this->set(compact('userRoleId'));
 
     
-
+     if($userRoleId==8)
+	 $canSeeExecutiveTables="";
+	else
     $canSeeExecutiveTables=$this->UserPageRight->hasUserPageRight('VER_RESUMEN_EJECUTIVO',$userRoleId,$loggedUserId,'Quotations','index');
 
     $this->set(compact('canSeeExecutiveTables'));
@@ -1715,6 +1762,13 @@ class SalesOrdersController extends AppController {
 		$invoiceDisplay=0;
 
 		$authorizedDisplay=0;
+
+		// Inicializar variables de fecha solo si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+		if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+			$startDate = date("Y-m-01");
+			$endDate = date("Y-m-d");
+			$endDatePlusOne = date("Y-m-d", strtotime($endDate."+1 days"));
+		}
 
 		
 
@@ -1854,21 +1908,22 @@ class SalesOrdersController extends AppController {
 
 		
 
-			$startDateArray=$this->request->data['Report']['startdate'];
-
-			$startDateString=$startDateArray['year'].'-'.$startDateArray['month'].'-'.$startDateArray['day'];
-
-			$startDate=date( "Y-m-d", strtotime($startDateString));
-
-		
-
-			$endDateArray=$this->request->data['Report']['enddate'];
-
-			$endDateString=$endDateArray['year'].'-'.$endDateArray['month'].'-'.$endDateArray['day'];
-
-			$endDate=date("Y-m-d",strtotime($endDateString));
-
-			$endDatePlusOne=date("Y-m-d",strtotime($endDateString."+1 days"));
+			// Las fechas solo se usan cuando NO es el rol ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+			if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+				// Verificar si existen las fechas en el request
+				if (isset($this->request->data['Report']['startdate'])) {
+					$startDateArray=$this->request->data['Report']['startdate'];
+					$startDateString=$startDateArray['year'].'-'.$startDateArray['month'].'-'.$startDateArray['day'];
+					$startDate=date( "Y-m-d", strtotime($startDateString));
+				}
+				
+				if (isset($this->request->data['Report']['enddate'])) {
+					$endDateArray=$this->request->data['Report']['enddate'];
+					$endDateString=$endDateArray['year'].'-'.$endDateArray['month'].'-'.$endDateArray['day'];
+					$endDate=date("Y-m-d",strtotime($endDateString));
+					$endDatePlusOne=date("Y-m-d",strtotime($endDateString."+1 days"));
+				}
+			}
 
 			
 
@@ -1922,20 +1977,22 @@ class SalesOrdersController extends AppController {
 		}
 
 		else {
-
-			$startDate = date("Y-m-01");
-
-			$endDate=date("Y-m-d",strtotime(date("Y-m-d")));
-
-			$endDatePlusOne= date( "Y-m-d", strtotime( date("Y-m-d")."+1 days" ) );
+			// Solo definir fechas si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+			if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+				$startDate = date("Y-m-01");
+				$endDate=date("Y-m-d",strtotime(date("Y-m-d")));
+				$endDatePlusOne= date( "Y-m-d", strtotime( date("Y-m-d")."+1 days" ) );
+			}
 
 		}
 
 		
   
-		$_SESSION['startDate']=$startDate;
-
-		$_SESSION['endDate']=$endDate;
+		// Solo guardar fechas en sesión si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+		if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+			$_SESSION['startDate']=$startDate;
+			$_SESSION['endDate']=$endDate;
+		}
 
 		$_SESSION['currencyId']=$currencyId;
 
@@ -1947,7 +2004,10 @@ class SalesOrdersController extends AppController {
 
 		
 
-		$this->set(compact('startDate','endDate'));
+		// Solo pasar fechas a la vista si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+		if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+			$this->set(compact('startDate','endDate'));
+		}
 
 		$this->set(compact('user_id','currencyId'));
 
@@ -2007,7 +2067,8 @@ class SalesOrdersController extends AppController {
 
     $conditions=[];
 
-		if (($userRoleId != ROLE_ADMIN && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION  && !$canSeeAllUsers && !$canSeeAllSalesExecutives) || ($user_id != 0 && $userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION )) { 
+		// Siempre aplicar filtro de usuario cuando se selecciona uno (para todos los roles)
+		if ($user_id != 0 && $user_id != '0') {
 
 			$quotationList=$this->Quotation->find('list',[
 
@@ -2022,7 +2083,6 @@ class SalesOrdersController extends AppController {
 			]);
 
 			$conditions['SalesOrder.quotation_id']=$quotationList;
-
 		}
 
     
@@ -2099,9 +2159,11 @@ class SalesOrdersController extends AppController {
 
     $authorizationPendingForPeriodConditions['SalesOrder.bool_annulled']=false;
 
-    $authorizationPendingForPeriodConditions['SalesOrder.sales_order_date >=']=$startDate;
-
-		$authorizationPendingForPeriodConditions['SalesOrder.sales_order_date <']=$endDatePlusOne;
+    // Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $authorizationPendingForPeriodConditions['SalesOrder.sales_order_date >=']=$startDate;
+        $authorizationPendingForPeriodConditions['SalesOrder.sales_order_date <']=$endDatePlusOne;
+    }
 
     
 
@@ -2196,7 +2258,10 @@ class SalesOrdersController extends AppController {
 
     $authorizationPendingBeforePeriodConditions['SalesOrder.bool_annulled']=false;
 
-    $authorizationPendingBeforePeriodConditions['SalesOrder.sales_order_date <']=$startDate;
+    // Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $authorizationPendingBeforePeriodConditions['SalesOrder.sales_order_date <']=$startDate;
+    }
 
 		
 
@@ -2292,7 +2357,10 @@ class SalesOrdersController extends AppController {
 
     $authorizationPendingAfterPeriodConditions['SalesOrder.bool_annulled']=false;
 
-    $authorizationPendingAfterPeriodConditions['SalesOrder.sales_order_date >=']=$endDatePlusOne;
+    // Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $authorizationPendingAfterPeriodConditions['SalesOrder.sales_order_date >=']=$endDatePlusOne;
+    }
 
     
 
@@ -2488,9 +2556,11 @@ class SalesOrdersController extends AppController {
 
     $annulledConditions['SalesOrder.bool_annulled']=true;
 
-    $annulledConditions['SalesOrder.sales_order_date >=']=$startDate;
-
-		$annulledConditions['SalesOrder.sales_order_date <']=$endDatePlusOne;
+    // Solo aplicar condiciones de fecha si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+    if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+        $annulledConditions['SalesOrder.sales_order_date >=']=$startDate;
+        $annulledConditions['SalesOrder.sales_order_date <']=$endDatePlusOne;
+    }
 
     //pr($authorizedConditions);
 
@@ -4883,7 +4953,12 @@ class SalesOrdersController extends AppController {
 
 		$_SESSION['endDate']=$endDate;
 
-		$this->set(compact('startDate','endDate','sales_order_product_status_id'));
+		// Solo pasar fechas a la vista si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+		if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+			$this->set(compact('startDate','endDate','sales_order_product_status_id'));
+		} else {
+			$this->set(compact('sales_order_product_status_id'));
+		}
 
 		
 
@@ -5176,19 +5251,17 @@ class SalesOrdersController extends AppController {
 
 		public function verReporteCategoriasVentas(){
 
+			$loggedUserId=$this->Auth->User('id');
+			$this->set(compact('loggedUserId'));
 			
-
+			$userRoleId = $this->Auth->User('role_id');
+			$this->set(compact('userRoleId'));
+		
 		$this->loadModel('ProductCategory');	
-
-		
-
-        $productCategories=$this->ProductCategory->find('list');
-
-		
-
-		
-
-			$product_category_id=0;
+        $this->loadModel('Client');
+        
+        $productCategories = $this->ProductCategory->find('list');
+		$product_category_id=0;
 
 		  //$sales_order_product_status_id=0;
 
@@ -5236,19 +5309,8 @@ class SalesOrdersController extends AppController {
 
 		else {
 
-			// Recuperar filtros de la sesión si es una solicitud de paginación
-
-			if ($page > 1 && $this->Session->check('startDate')) {
-
-				$startDate = $this->Session->read('startDate');
-
-				$endDate = $this->Session->read('endDate');
-
-				$endDatePlusOne = date("Y-m-d", strtotime($endDate."+1 days"));
-
-				$product_category_id = $this->Session->read('product_category_id');
-
-			}
+			// Para carga inicial, siempre mostrar todos los datos
+			$product_category_id = 0;
 
 		}
 
@@ -5274,9 +5336,16 @@ class SalesOrdersController extends AppController {
 
 		$_SESSION['product_category_id']=$product_category_id;
 
-		$this->set(compact('startDate','endDate'/*,'sales_order_product_status_id'*/));
+		// Solo pasar fechas a la vista si el rol no es ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION
+		if ($userRoleId != ROLE_DEPARTMENT_SUPERVISOR_PRODUCTION) {
+			$this->set(compact('startDate','endDate'/*,'sales_order_product_status_id'*/));
+		}
 
-		
+			
+
+		$clients = $this->Client->find('list',array('order'=>'Client.name'));
+
+		$this->set(compact('clients'));
 
 		$this->loadModel('SalesOrderProductStatus');
 
@@ -5673,7 +5742,6 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 
 		$this->autoRender = false;
 
-		
 
 		// Limpiar cualquier buffer
 
@@ -5697,15 +5765,36 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 
 		try {
 
-			// Recuperar filtros de la sesión o usar por defecto (fechas recientes)
-
-			$startDate = $this->Session->check('startDate') ? $this->Session->read('startDate') : date("Y-m-01");
-
-			$endDate = $this->Session->check('endDate') ? $this->Session->read('endDate') : date("Y-m-d");
-
-			$product_category_id = $this->Session->check('product_category_id') ? $this->Session->read('product_category_id') : 0;
-
-
+			// Para carga inicial, usar valores por defecto (todos los datos)
+			// Solo usar sesión si es POST (cuando el usuario aplica filtros)
+			if ($this->request->is('post')) {
+				$startDate = $this->Session->check('startDate') ? $this->Session->read('startDate') : date("Y-m-01");
+				$endDate = $this->Session->check('endDate') ? $this->Session->read('endDate') : date("Y-m-d");
+				$product_category_id = $this->Session->check('product_category_id') ? $this->Session->read('product_category_id') : 0;
+				$client_id = $this->Session->check('client_id') ? $this->Session->read('client_id') : 0;
+				$estado_filtro = $this->Session->check('estado_filtro') ? $this->Session->read('estado_filtro') : 0;
+			} else {
+				// Carga inicial - mostrar todos los datos
+				$startDate = date("Y-m-01");
+				$endDate = date("Y-m-d");
+				$product_category_id = 0;
+				$client_id = 0;
+				$estado_filtro = isset($this->request->query['estado']) ? $this->request->query['estado'] : 0;
+				
+				// Si hay filtros en query (formulario), aplicarlos
+				if (isset($this->request->query['data']['Report']['product_category_id'])) {
+					$product_category_id = $this->request->query['data']['Report']['product_category_id'];
+				}
+				if (isset($this->request->query['data']['Report']['client_id'])) {
+					$client_id = $this->request->query['data']['Report']['client_id'];
+				}
+				if (isset($this->request->query['data']['Report']['estado_id'])) {
+					$estado_filtro = $this->request->query['data']['Report']['estado_id'];
+				}
+				
+							}
+		
+			
 			// Si es POST, actualizar filtros
 
 			if ($this->request->is('post')) {
@@ -5733,6 +5822,18 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 
 				}
 
+				if (isset($this->request->data['Report']['client_id'])) {
+
+					$client_id = $this->request->data['Report']['client_id'];
+
+				}
+
+				if (isset($this->request->data['Report']['estado_id'])) {
+
+					$estado_filtro = $this->request->data['Report']['estado_id'];
+
+				}
+
 				// DEBUG: Guardar logs para depuración
 
 				$logData = array(
@@ -5744,6 +5845,8 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 					'endDatePlusOne' => date("Y-m-d", strtotime($endDate."+1 days")),
 
 					'product_category_id' => $product_category_id,
+
+					'client_id' => isset($client_id) ? $client_id : 0,
 
 					'page' => isset($this->request->data['page']) ? $this->request->data['page'] : 1,
 
@@ -5759,21 +5862,21 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 
 				$_SESSION['product_category_id'] = $product_category_id;
 
+				$_SESSION['client_id'] = $client_id;
+
+				$_SESSION['estado_filtro'] = $estado_filtro;
+
 			}
 
 			
 
-			// Parámetro de página
-
-			$page = isset($this->request->data['page']) ? $this->request->data['page'] : 1;
-
-			
+			// Parámetro de página - revisar tanto POST como GET
+			$page = isset($this->request->data['page']) ? $this->request->data['page'] : 
+			        (isset($this->request->query['page']) ? $this->request->query['page'] : 1);
 
 			$endDatePlusOne = date("Y-m-d", strtotime($endDate."+1 days"));
 
-			
-
-			// Cargar modelos
+			// Configurar condiciones
 
 			$this->loadModel('SalesOrderProduct');
 
@@ -5782,56 +5885,30 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 			$this->loadModel('ProductCategory');
 
 			
+			// Configurar condiciones directamente para productos
+			$orderPconditions = array();
 
-			// Configurar condiciones
+			// Condiciones base - mostrar todos los datos no anulados
+			$orderPconditions['SalesOrder.bool_annulled'] = false;
 
-			$orderConditions = array(
-
-				'SalesOrderProduct.sales_order_product_status_id' => 1,
-
-				'SalesOrder.sales_order_date >=' => $startDate,
-
-				'SalesOrder.sales_order_date <' => $endDatePlusOne,
-
-				'SalesOrder.bool_annulled' => false
-
-			);
-
-			
-
-			if($product_category_id != '0') {
-
-				$orderConditions['Product.product_category_id'] = $product_category_id;
-
+			// Aplicar filtro de estado si está seleccionado (prioridad alta)
+			if ($estado_filtro != '0') {
+				$orderPconditions['SalesOrderProduct.sales_order_product_status_id'] = $estado_filtro;
 			}
 
-
-
-$salesOrderIds = $this->SalesOrderProduct->find('list', array(
-    'fields' => array('SalesOrderProduct.sales_order_id', 'SalesOrderProduct.sales_order_id'),
-    'conditions' => $orderConditions,
-    'recursive' => 0
-));
- 
-			$orderPconditions = array(
-
-				'SalesOrderProduct.sales_order_id' => $salesOrderIds,
-
-				'SalesOrderProduct.sales_order_product_status_id' => 1
-
-			);
-
-			
-
+			// Aplicar filtros de categoría y cliente
 			if($product_category_id != '0') {
-
 				$orderPconditions['Product.product_category_id'] = $product_category_id;
+			}
 
+			if($client_id != '0') {
+				$orderPconditions['SalesOrder.client_id'] = $client_id;
 			}
 
 			
+			
 
-			// Configurar paginación
+			// Configurar paginación - consulta más simple
 
 			$this->Paginator->settings = array(
 
@@ -5839,33 +5916,9 @@ $salesOrderIds = $this->SalesOrderProduct->find('list', array(
 
 				'contain' => array(
 
-					'Product' => array(
+					'Product' => array('ProductCategory'),
 
-						'fields' => array('Product.id', 'Product.name'),
-
-						'ProductCategory' => array(
-
-							'fields' => array('ProductCategory.id', 'ProductCategory.name')
-
-						),
-
-					),
-
-					'SalesOrder' => array(
-
-						'fields' => array('SalesOrder.id', 'SalesOrder.sales_order_date', 'SalesOrder.sales_order_code'),
-
-						'Quotation' => array(
-
-							'Client' => array(
-
-								'fields' => array('Client.id', 'Client.name')
-
-							)
-
-						)
-
-					),
+					'SalesOrder' => array('Quotation' => array('Client'))
 
 				),
 
@@ -5873,7 +5926,7 @@ $salesOrderIds = $this->SalesOrderProduct->find('list', array(
 
 				'limit' => 50,
 
-				'recursive' => 1,
+				'recursive' => 2,
 
 				'page' => $page
 
@@ -5882,8 +5935,52 @@ $salesOrderIds = $this->SalesOrderProduct->find('list', array(
 			
 
 			// Obtener datos paginados
-
 			$productosPaginados = $this->Paginator->paginate('SalesOrderProduct');
+			
+			// Cargar todos los estados disponibles para mapear
+			$this->loadModel('SalesOrderProductStatus');
+			$allStatuses = $this->SalesOrderProductStatus->find('list', array(
+				'fields' => array('SalesOrderProductStatus.id', 'SalesOrderProductStatus.status')
+			));
+			$statusMap = array();
+			foreach ($allStatuses as $id => $name) {
+				$statusMap[$id] = $name;
+			}
+			
+						
+			// Si no hay resultados, hacer una consulta simple pero manteniendo filtros importantes
+			if (empty($productosPaginados)) {
+				$simpleConditions = array();
+				
+				// Mantener filtro de categoría si está aplicado
+				if($product_category_id != '0') {
+					$simpleConditions['Product.product_category_id'] = $product_category_id;
+				}
+				
+				// Mantener filtro de cliente si está aplicado
+				if($client_id != '0') {
+					$simpleConditions['SalesOrder.client_id'] = $client_id;
+				}
+				
+				// Mantener filtro de estado si está aplicado
+				if($estado_filtro != '0') {
+					$simpleConditions['SalesOrderProduct.sales_order_product_status_id'] = $estado_filtro;
+				}
+				
+								
+				$this->Paginator->settings = array(
+					'conditions' => $simpleConditions,
+					'contain' => array(
+						'Product' => array('ProductCategory'),
+						'SalesOrder' => array('Quotation' => array('Client')),
+						'SalesOrderProductStatus'
+					),
+					'limit' => 50,
+					'recursive' => 2,
+					'page' => $page
+				);
+				$productosPaginados = $this->Paginator->paginate('SalesOrderProduct');
+			}
 
 			
 
@@ -5904,6 +6001,17 @@ $salesOrderIds = $this->SalesOrderProduct->find('list', array(
 				$item['product_quantity'] = $p['SalesOrderProduct']['product_quantity'];
 
 				$item['sale_description'] = $p['SalesOrderProduct']['product_description'];
+				
+				// Agregar estado del producto
+				$statusId = $p['SalesOrderProduct']['sales_order_product_status_id'];
+				$item['sales_order_product_status_id'] = $statusId;
+				// Agregar nombre del estado usando el mapa
+				if (isset($statusMap[$statusId])) {
+					$item['SalesOrderProductStatus'] = array(
+						'id' => $statusId,
+						'status' => $statusMap[$statusId]
+					);
+				}
 
 				$nuevaFila['SalesOrderProduct'] = array($item);
 				
@@ -6025,86 +6133,165 @@ $salesOrderIds = $this->SalesOrderProduct->find('list', array(
 		
 		try {
 			$salesOrderId = $this->request->data['sales_order_id'];
-			$estadoId = isset($this->request->data['production_order_state_id']) ? $this->request->data['production_order_state_id'] : null;
+			$estadoId = isset($this->request->data['sales_order_product_status_id']) ? $this->request->data['sales_order_product_status_id'] : null;
 			$nuevoEstadoNombre = isset($this->request->data['nuevo_estado']) ? $this->request->data['nuevo_estado'] : null;
 			$descripcion = isset($this->request->data['descripcion']) ? $this->request->data['descripcion'] : '';
 			
 			// Cargar modelos necesarios
-			$this->loadModel('ProductionOrderState');
-			$this->loadModel('ProductionOrderDepartmentState');
-			$this->loadModel('ProductionOrderRemark');
+			$this->loadModel('SalesOrderProductStatus');
 			
 			// Si se proporciona un nombre para nuevo estado, crearlo primero
+			$estadoCreado = false;
 			if ($nuevoEstadoNombre && !$estadoId) {
-				$this->ProductionOrderState->create();
+				$this->SalesOrderProductStatus->create();
 				$nuevoEstado = [
-					'ProductionOrderState' => [
-						'name' => $nuevoEstadoNombre,
-						'list_order' => 999
+					'SalesOrderProductStatus' => [
+						'status' => $nuevoEstadoNombre
 					]
 				];
 				
-				if ($this->ProductionOrderState->save($nuevoEstado)) {
-					$estadoId = $this->ProductionOrderState->id;
+				if ($this->SalesOrderProductStatus->save($nuevoEstado)) {
+					$estadoCreado = true;
+					// Solo crear el estado, no asignarlo a la orden
+					echo json_encode([
+						'success' => true,
+						'message' => 'Estado creado correctamente'
+					]);
+					return;
 				} else {
 					throw new Exception('No se pudo crear el nuevo estado');
 				}
 			}
 			
-			// Verificar si ya existe un estado para esta orden
-			$estadoExistente = $this->ProductionOrderDepartmentState->find('first', [
-				'conditions' => [
-					'sales_order_id' => $salesOrderId
-				]
-			]);
+			// Para evitar errores de estructura, vamos a actualizar directamente el estado del producto
+			$this->loadModel('SalesOrderProduct');
 			
-			if ($estadoExistente) {
-				// Actualizar estado existente
-				$this->ProductionOrderDepartmentState->id = $estadoExistente['ProductionOrderDepartmentState']['id'];
-				$estadoData = [
-					'ProductionOrderDepartmentState' => [
-						'production_order_state_id' => $estadoId
-					]
-				];
-			} else {
-				// Crear nuevo estado
-				$this->ProductionOrderDepartmentState->create();
-				$estadoData = [
-					'ProductionOrderDepartmentState' => [
-						'sales_order_id' => $salesOrderId,
-						'production_order_state_id' => $estadoId
-					]
-				];
+			// Verificar que los datos necesarios existan
+			if (empty($salesOrderId) || empty($estadoId)) {
+				throw new Exception('Faltan datos necesarios: salesOrderId=' . $salesOrderId . ', estadoId=' . $estadoId);
 			}
 			
-			if ($this->ProductionOrderDepartmentState->save($estadoData)) {
-				
-				// Guardar el remark en production_order_remarks
-				if (!empty($descripcion)) {
-					$this->ProductionOrderRemark->create();
-					$remarkData = [
-						'ProductionOrderRemark' => [
-							'sales_order_id' => $salesOrderId,
-							'production_order_state_id' => $estadoId,
-							'description' => $descripcion,
-							'created' => date('Y-m-d H:i:s'),
-							'modified' => date('Y-m-d H:i:s')
-						]
-					];
-					
-					if (!$this->ProductionOrderRemark->save($remarkData)) {
-						// No lanzar error, solo loguear para no interrumpir el flujo
-						error_log('No se pudo guardar el remark para la orden ' . $salesOrderId);
-					}
-				}
-				
+			// Actualizar el estado del producto directamente
+			$updateResult = $this->SalesOrderProduct->updateAll(
+				['sales_order_product_status_id' => $estadoId],
+				['sales_order_id' => $salesOrderId]
+			);
+			
+			if ($updateResult) {
+				// Éxito al actualizar el estado
 				echo json_encode([
 					'success' => true,
 					'message' => 'Estado actualizado correctamente'
 				]);
 			} else {
-				throw new Exception('No se pudo guardar el estado');
+				throw new Exception('No se pudo actualizar el estado del producto');
 			}
+			
+		} catch (Exception $e) {
+			echo json_encode([
+				'success' => false,
+				'message' => $e->getMessage()
+			]);
+		}
+	}
+
+	public function getResumenEstados() {
+		$this->autoRender = false;
+		$this->layout = 'ajax';
+		
+		try {
+			$this->loadModel('SalesOrderProduct');
+			$this->loadModel('Product');
+			$this->loadModel('ProductCategory');
+			
+			// Obtener filtros actuales (misma lógica que getReporteCategoriasVentasData)
+			$product_category_id = 0;
+			$client_id = 0;
+			
+			// Intentar obtener de sesión primero
+			if ($this->Session->check('product_category_id')) {
+				$product_category_id = $this->Session->read('product_category_id');
+			}
+			if ($this->Session->check('client_id')) {
+				$client_id = $this->Session->read('client_id');
+			}
+			
+			// Si no hay en sesión, intentar de query
+			if (isset($this->request->query['data']['Report']['product_category_id'])) {
+				$product_category_id = $this->request->query['data']['Report']['product_category_id'];
+			}
+			if (isset($this->request->query['data']['Report']['client_id'])) {
+				$client_id = $this->request->query['data']['Report']['client_id'];
+			}
+			
+			// Construir condiciones (misma lógica que getReporteCategoriasVentasData)
+			$conditions = array();
+			$conditions['SalesOrder.bool_annulled'] = false;
+			
+			// Aplicar filtros de categoría y cliente
+			if($product_category_id != '0') {
+				$conditions['Product.product_category_id'] = $product_category_id;
+			}
+			if($client_id != '0') {
+				$conditions['SalesOrder.client_id'] = $client_id;
+			}
+			
+			// Obtener conteos por estado con filtros aplicados
+			$conteos = $this->SalesOrderProduct->find('all', [
+				'fields' => [
+					'SalesOrderProduct.sales_order_product_status_id',
+					'COUNT(*) as count'
+				],
+				'conditions' => $conditions,
+				'contain' => array(
+					'Product',
+					'SalesOrder' => array('Quotation' => array('Client'))
+				),
+				'group' => ['SalesOrderProduct.sales_order_product_status_id'],
+				'recursive' => 2
+			]);
+			
+			// Mapeo de estados
+			$estadoMap = [
+				'1' => 'Pendiente',
+				'2' => 'En Producción',
+				'3' => 'Esperando Producción',
+				'4' => 'Entregado',
+				'5' => 'Anulado'
+			];
+			
+			$resumen = [];
+			$total = 0;
+			
+			// Inicializar todos los estados en 0
+			foreach ($estadoMap as $id => $nombre) {
+				$resumen[$id] = [
+					'nombre' => $nombre,
+					'count' => 0
+				];
+			}
+			
+			// Llenar con los conteos reales
+			foreach ($conteos as $conteo) {
+				$estadoId = $conteo['SalesOrderProduct']['sales_order_product_status_id'];
+				$count = $conteo[0]['count'];
+				
+				if (isset($resumen[$estadoId])) {
+					$resumen[$estadoId]['count'] = $count;
+					$total += $count;
+				}
+			}
+			
+			// Calcular porcentajes
+			foreach ($resumen as $id => &$data) {
+				$data['porcentaje'] = $total > 0 ? round(($data['count'] / $total) * 100, 1) : 0;
+			}
+			
+			echo json_encode([
+				'success' => true,
+				'data' => $resumen,
+				'total' => $total
+			]);
 			
 		} catch (Exception $e) {
 			echo json_encode([

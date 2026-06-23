@@ -74,4 +74,12 @@ class PagesController extends AppController {
 			throw new NotFoundException();
 		}
 	}
+	
+	public function repararArbolAcl() {
+		// Permitir acceso temporalmente
+		$this->Auth->allow('repararArbolAcl');
+		
+		// Llamar al método del AppController
+		return $this->_repararArbolAcl();
+	}
 }

@@ -1032,6 +1032,27 @@ class UsersController extends AppController {
 					for ($r=0;$r<count($roles);$r++){
 						$aco_name=$selectedControllers[$c]['Aco']['alias']."/".$selectedActions[$a]['Aco']['alias'];
 						//pr($aco_name);
+						
+// Agrega este test temporal en el método rolePermissions
+if ($selectedActions[$a]['Aco']['alias'] == 'verReporteCategoriasVentas') {
+    echo "Probando Acl->check después de corregir lft/rght:<br/>";
+    $testResult = $this->Acl->check(['Role'=>['id'=>8]], 'SalesOrders/verReporteCategoriasVentas');
+    echo "Resultado: ";
+    var_dump($testResult);
+    echo "<br/>";
+}
+
+
+if ($selectedActions[$a]['Aco']['alias'] == 'verReporteCategoriasVentas') {
+    $acoNode = $this->Acl->Aco->node('SalesOrders/verReporteCategoriasVentas');
+    echo "ACO node ahora: ";
+    var_dump($acoNode);
+    echo "<br/>";
+}
+
+ 
+ 
+ 
 						$hasPermission=$this->Acl->check(['Role'=>['id'=>$roles[$r]['Role']['id']]],$aco_name);
 						//if ($selectedActions[$a]['Aco']['id']==15){
 						//	echo "permission for ".$aco_name." is ".$hasPermission."<br/>";

@@ -5,6 +5,11 @@ class ProductionOrderStatesController extends AppController {
 
 	public $components = array('Paginator');
 
+	public function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->allow('getEstados');
+	}
+
 public function resumen() {
 		$this->ProductionOrderState->recursive = -1;
 	/*	
@@ -109,6 +114,37 @@ public function resumen() {
       ];
 			$this->request->data = $this->ProductionOrderState->find('first', $options);
 		}
+	}
+
+/**
+ * getEstados method
+ *
+ * @return void
+ */
+	public function getEstados() {
+		$this->autoRender = false;
+		$this->layout = 'ajax';
+		
+		// Usar el método existente del modelo para obtener la lista
+		$productionOrderStates = $this->ProductionOrderState->getProductionOrderStateList();
+		
+		$estados = [];
+		foreach ($productionOrderStates as $id => $name) {
+			$estados[] = [
+				'id' => $id,
+				'name_state' => $name  // Cambiado a name_state para que coincida con el frontend
+			];
+		}
+		
+		// Estructura esperada por el frontend
+		$response = [
+			'success' => true,
+			'estados' => $estados
+		];
+		
+		$this->response->type('json');
+		$this->response->body(json_encode($response));
+		return $this->response;
 	}
 
 /**
