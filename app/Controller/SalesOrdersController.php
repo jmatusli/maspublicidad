@@ -5788,7 +5788,7 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 				if (isset($this->request->query['data']['Report']['client_id'])) {
 					$client_id = $this->request->query['data']['Report']['client_id'];
 				}
-				if (isset($this->request->query['data']['Report']['estado_id'])) {
+				if (isset($this->request->query['data']['Report']['estado_id']) && $this->request->query['data']['Report']['estado_id'] !== '') {
 					$estado_filtro = $this->request->query['data']['Report']['estado_id'];
 				}
 				
@@ -5870,6 +5870,21 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 
 			
 
+			// Normalizar selects vacios: sin seleccion significa "todos".
+			$product_category_id = trim((string)$product_category_id);
+			$client_id = trim((string)$client_id);
+			$estado_filtro = trim((string)$estado_filtro);
+
+			if ($product_category_id === '') {
+				$product_category_id = 0;
+			}
+			if ($client_id === '') {
+				$client_id = 0;
+			}
+			if ($estado_filtro === '') {
+				$estado_filtro = 0;
+			}
+
 			// Parámetro de página - revisar tanto POST como GET
 			$page = isset($this->request->data['page']) ? $this->request->data['page'] : 
 			        (isset($this->request->query['page']) ? $this->request->query['page'] : 1);
@@ -5884,25 +5899,83 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 
 			$this->loadModel('ProductCategory');
 
+			$this->loadModel('SalesOrderProductStatus');
+
+			$allStatuses = $this->SalesOrderProductStatus->find('list', array(
+				'fields' => array('SalesOrderProductStatus.id', 'SalesOrderProductStatus.status')
+			));
+			$statusMap = array();
+			foreach ($allStatuses as $id => $name) {
+				$statusMap[$id] = $name;
+			}
+			$validStatusIds = array_keys($statusMap);
+			if (empty($validStatusIds)) {
+				$validStatusIds = array(-1);
+			}
+
 			
 			// Configurar condiciones directamente para productos
 			$orderPconditions = array();
+			$registeredCatalogJoins = array(
+				array(
+					'table' => 'products',
+					'alias' => 'RegisteredProduct',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredProduct.id = SalesOrderProduct.product_id'
+					)
+				),
+				array(
+					'table' => 'product_categories',
+					'alias' => 'RegisteredProductCategory',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredProductCategory.id = RegisteredProduct.product_category_id'
+					)
+				),
+				array(
+					'table' => 'sales_orders',
+					'alias' => 'RegisteredSalesOrder',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredSalesOrder.id = SalesOrderProduct.sales_order_id'
+					)
+				),
+				array(
+					'table' => 'clients',
+					'alias' => 'RegisteredClient',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredClient.id = RegisteredSalesOrder.client_id'
+					)
+				),
+				array(
+					'table' => 'sales_order_product_statuses',
+					'alias' => 'RegisteredSalesOrderProductStatus',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredSalesOrderProductStatus.id = SalesOrderProduct.sales_order_product_status_id'
+					)
+				)
+			);
 
 			// Condiciones base - mostrar todos los datos no anulados
-			$orderPconditions['SalesOrder.bool_annulled'] = false;
+			$orderPconditions['RegisteredSalesOrder.bool_annulled'] = false;
 
 			// Aplicar filtro de estado si está seleccionado (prioridad alta)
 			if ($estado_filtro != '0') {
-				$orderPconditions['SalesOrderProduct.sales_order_product_status_id'] = $estado_filtro;
+				$orderPconditions['SalesOrderProduct.sales_order_product_status_id'] = isset($statusMap[$estado_filtro]) ? $estado_filtro : -1;
+			} else {
+				$orderPconditions['SalesOrderProduct.sales_order_product_status_id'] = $validStatusIds;
 			}
 
 			// Aplicar filtros de categoría y cliente
 			if($product_category_id != '0') {
-				$orderPconditions['Product.product_category_id'] = $product_category_id;
+				$orderPconditions['RegisteredProduct.product_category_id'] = $product_category_id;
 			}
 
 			if($client_id != '0') {
-				$orderPconditions['SalesOrder.client_id'] = $client_id;
+				$orderPconditions['RegisteredSalesOrder.client_id'] = $client_id;
 			}
 
 			
@@ -5913,12 +5986,13 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 			$this->Paginator->settings = array(
 
 				'conditions' => $orderPconditions,
+				'joins' => $registeredCatalogJoins,
 
 				'contain' => array(
 
 					'Product' => array('ProductCategory'),
 
-					'SalesOrder' => array('Quotation' => array('Client'))
+					'SalesOrder' => array('Client', 'Quotation' => array('Client'))
 
 				),
 
@@ -5951,28 +6025,31 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 			// Si no hay resultados, hacer una consulta simple pero manteniendo filtros importantes
 			if (empty($productosPaginados)) {
 				$simpleConditions = array();
+				$simpleConditions['RegisteredSalesOrder.bool_annulled'] = false;
+				$simpleConditions['SalesOrderProduct.sales_order_product_status_id'] = $estado_filtro != '0' ? (isset($statusMap[$estado_filtro]) ? $estado_filtro : -1) : $validStatusIds;
 				
 				// Mantener filtro de categoría si está aplicado
 				if($product_category_id != '0') {
-					$simpleConditions['Product.product_category_id'] = $product_category_id;
+					$simpleConditions['RegisteredProduct.product_category_id'] = $product_category_id;
 				}
 				
 				// Mantener filtro de cliente si está aplicado
 				if($client_id != '0') {
-					$simpleConditions['SalesOrder.client_id'] = $client_id;
+					$simpleConditions['RegisteredSalesOrder.client_id'] = $client_id;
 				}
 				
 				// Mantener filtro de estado si está aplicado
 				if($estado_filtro != '0') {
-					$simpleConditions['SalesOrderProduct.sales_order_product_status_id'] = $estado_filtro;
+					$simpleConditions['SalesOrderProduct.sales_order_product_status_id'] = isset($statusMap[$estado_filtro]) ? $estado_filtro : -1;
 				}
 				
 								
 				$this->Paginator->settings = array(
 					'conditions' => $simpleConditions,
+					'joins' => $registeredCatalogJoins,
 					'contain' => array(
 						'Product' => array('ProductCategory'),
-						'SalesOrder' => array('Quotation' => array('Client')),
+						'SalesOrder' => array('Client', 'Quotation' => array('Client')),
 						'SalesOrderProductStatus'
 					),
 					'limit' => 50,
@@ -5992,11 +6069,16 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 
 				$nuevaFila = array();
 
-				$nuevaFila['SalesOrder'] = $p['SalesOrder'];
+				$nuevaFila['SalesOrder'] = isset($p['SalesOrder']) ? $p['SalesOrder'] : array();
+				if (empty($nuevaFila['SalesOrder']['id']) && !empty($p['SalesOrderProduct']['sales_order_id'])) {
+					$nuevaFila['SalesOrder']['id'] = $p['SalesOrderProduct']['sales_order_id'];
+				}
 
 				
 
 				$item = array();
+
+				$item['sales_order_id'] = $p['SalesOrderProduct']['sales_order_id'];
 
 				$item['product_quantity'] = $p['SalesOrderProduct']['product_quantity'];
 
@@ -6021,7 +6103,9 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 				$nombreCliente = 'N/A';
 		 
 				
-				if (isset($p['SalesOrder']['Quotation']['Client']['name'])) {
+				if (isset($p['SalesOrder']['Client']['name'])) {
+					$nombreCliente = $p['SalesOrder']['Client']['name'];
+				} elseif (isset($p['SalesOrder']['Quotation']['Client']['name'])) {
 					$nombreCliente = $p['SalesOrder']['Quotation']['Client']['name'];
 				}
 				
@@ -6203,6 +6287,7 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 			$this->loadModel('SalesOrderProduct');
 			$this->loadModel('Product');
 			$this->loadModel('ProductCategory');
+			$this->loadModel('SalesOrderProductStatus');
 			
 			// Obtener filtros actuales (misma lógica que getReporteCategoriasVentasData)
 			$product_category_id = 0;
@@ -6225,15 +6310,77 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 			}
 			
 			// Construir condiciones (misma lógica que getReporteCategoriasVentasData)
+			$product_category_id = trim((string)$product_category_id);
+			$client_id = trim((string)$client_id);
+
+			if ($product_category_id === '') {
+				$product_category_id = 0;
+			}
+			if ($client_id === '') {
+				$client_id = 0;
+			}
+
 			$conditions = array();
-			$conditions['SalesOrder.bool_annulled'] = false;
+			$registeredCatalogJoins = array(
+				array(
+					'table' => 'products',
+					'alias' => 'RegisteredProduct',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredProduct.id = SalesOrderProduct.product_id'
+					)
+				),
+				array(
+					'table' => 'product_categories',
+					'alias' => 'RegisteredProductCategory',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredProductCategory.id = RegisteredProduct.product_category_id'
+					)
+				),
+				array(
+					'table' => 'sales_orders',
+					'alias' => 'RegisteredSalesOrder',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredSalesOrder.id = SalesOrderProduct.sales_order_id'
+					)
+				),
+				array(
+					'table' => 'clients',
+					'alias' => 'RegisteredClient',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredClient.id = RegisteredSalesOrder.client_id'
+					)
+				),
+				array(
+					'table' => 'sales_order_product_statuses',
+					'alias' => 'RegisteredSalesOrderProductStatus',
+					'type' => 'INNER',
+					'conditions' => array(
+						'RegisteredSalesOrderProductStatus.id = SalesOrderProduct.sales_order_product_status_id'
+					)
+				)
+			);
+			$conditions['RegisteredSalesOrder.bool_annulled'] = false;
+
+			$estadoMap = $this->SalesOrderProductStatus->find('list', array(
+				'fields' => array('SalesOrderProductStatus.id', 'SalesOrderProductStatus.status'),
+				'order' => array('SalesOrderProductStatus.id' => 'ASC')
+			));
+			$validStatusIds = array_keys($estadoMap);
+			if (empty($validStatusIds)) {
+				$validStatusIds = array(-1);
+			}
+			$conditions['SalesOrderProduct.sales_order_product_status_id'] = $validStatusIds;
 			
 			// Aplicar filtros de categoría y cliente
 			if($product_category_id != '0') {
-				$conditions['Product.product_category_id'] = $product_category_id;
+				$conditions['RegisteredProduct.product_category_id'] = $product_category_id;
 			}
 			if($client_id != '0') {
-				$conditions['SalesOrder.client_id'] = $client_id;
+				$conditions['RegisteredSalesOrder.client_id'] = $client_id;
 			}
 			
 			// Obtener conteos por estado con filtros aplicados
@@ -6243,22 +6390,20 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 					'COUNT(*) as count'
 				],
 				'conditions' => $conditions,
+				'joins' => $registeredCatalogJoins,
 				'contain' => array(
 					'Product',
-					'SalesOrder' => array('Quotation' => array('Client'))
+					'SalesOrder' => array('Client', 'Quotation' => array('Client'))
 				),
 				'group' => ['SalesOrderProduct.sales_order_product_status_id'],
 				'recursive' => 2
 			]);
 			
 			// Mapeo de estados
-			$estadoMap = [
-				'1' => 'Pendiente',
-				'2' => 'En Producción',
-				'3' => 'Esperando Producción',
-				'4' => 'Entregado',
-				'5' => 'Anulado'
-			];
+			$estadoMap = $this->SalesOrderProductStatus->find('list', array(
+				'fields' => array('SalesOrderProductStatus.id', 'SalesOrderProductStatus.status'),
+				'order' => array('SalesOrderProductStatus.id' => 'ASC')
+			));
 			
 			$resumen = [];
 			$total = 0;
@@ -6274,12 +6419,14 @@ $this->set(compact('totalRecords', 'totalPages', 'currentPage'));
 			// Llenar con los conteos reales
 			foreach ($conteos as $conteo) {
 				$estadoId = $conteo['SalesOrderProduct']['sales_order_product_status_id'];
-				$count = $conteo[0]['count'];
+				$count = (int)$conteo[0]['count'];
 				
-				if (isset($resumen[$estadoId])) {
-					$resumen[$estadoId]['count'] = $count;
-					$total += $count;
+				if (!isset($resumen[$estadoId])) {
+					continue;
 				}
+
+				$resumen[$estadoId]['count'] = $count;
+				$total += $count;
 			}
 			
 			// Calcular porcentajes

@@ -599,21 +599,26 @@ input[type="submit"].loading::before {
 <script>
 function abrirModalEstado(rowData) {
     console.log('abrirModalEstado llamado con rowData:', rowData);
+    // Limpiar formulario antes de cargar los datos de la orden; reset() tambien limpia inputs hidden.
+    $('#formCambiarEstado')[0].reset();
+
     // Extraer datos de la orden
-    var salesOrderId = rowData.SalesOrder.id;
-    var salesOrderCode = rowData.SalesOrder.sales_order_code;
-    var salesOrderDate = rowData.SalesOrder.sales_order_date;
+    var salesOrder = rowData.SalesOrder || {};
+    var firstProduct = (rowData.SalesOrderProduct && rowData.SalesOrderProduct[0]) ? rowData.SalesOrderProduct[0] : {};
+    var salesOrderId = salesOrder.id || salesOrder.sales_order_id || firstProduct.sales_order_id || rowData.sales_order_id || '';
+    var salesOrderCode = salesOrder.sales_order_code || 'Orden sin codigo';
+    var salesOrderDate = salesOrder.sales_order_date || '';
     var clientName = rowData.Client ? rowData.Client.name : 'Cliente no disponible';
     var clientEmail = rowData.Client ? (rowData.Client.email || 'Sin email') : 'Sin email';
     var currentState = 'Sin estado asignado';
     if (rowData.SalesOrderProduct && rowData.SalesOrderProduct[0]) {
-        console.log('SalesOrderProduct[0]:', rowData.SalesOrderProduct[0]);
+        console.log('SalesOrderProduct[0]:', firstProduct);
         // Usar el nombre del estado desde los datos del endpoint
-        if (rowData.SalesOrderProduct[0].SalesOrderProductStatus && rowData.SalesOrderProduct[0].SalesOrderProductStatus.status) {
-            currentState = rowData.SalesOrderProduct[0].SalesOrderProductStatus.status;
+        if (firstProduct.SalesOrderProductStatus && firstProduct.SalesOrderProductStatus.status) {
+            currentState = firstProduct.SalesOrderProductStatus.status;
             console.log('Estado actual desde SalesOrderProductStatus.status:', currentState);
         } else {
-            var statusId = rowData.SalesOrderProduct[0].sales_order_product_status_id;
+            var statusId = firstProduct.sales_order_product_status_id;
             console.log('Estado actual desde sales_order_product_status_id:', statusId);
             if (statusId) {
                 currentState = 'Estado ID: ' + statusId;
@@ -622,13 +627,13 @@ function abrirModalEstado(rowData) {
     }
     console.log('Estado actual a mostrar:', currentState);
     
-    // Establecer ID de la orden
+    // Establecer ID de la orden despues del reset para que no quede vacio al guardar.
     $('#salesOrderId').val(salesOrderId);
     
     // Mostrar información de la orden inmediatamente
     $('#modalOrdenInfo').html(
         '<strong>' + salesOrderCode + '</strong><br>' +
-        '<small>Fecha: ' + new Date(salesOrderDate).toLocaleDateString('es-ES') + '</small>'
+        '<small>Fecha: ' + (salesOrderDate ? new Date(salesOrderDate).toLocaleDateString('es-ES') : '-') + '</small>'
     );
     
     // Mostrar información del cliente inmediatamente
@@ -642,8 +647,6 @@ function abrirModalEstado(rowData) {
     
     // Resetear al primer tab
     $('#cambiarEstadoTab').tab('show');
-    // Limpiar formulario
-    $('#formCambiarEstado')[0].reset();
     
     // Cargar estados disponibles
     cargarEstados();
@@ -685,9 +688,14 @@ function cargarEstados() {
             selectFiltro.append('<option value="0">Seleccione Estado</option>');
             
             if (response.success && response.estados && response.estados.length > 0) {
+                var estadosFiltro = response.estados_filtro ? response.estados_filtro : response.estados;
+
                 $.each(response.estados, function(index, estado) {
                     // Agregar al select del modal
                     selectModal.append('<option value="' + estado.id + '">' + estado.status + '</option>');
+                });
+
+                $.each(estadosFiltro, function(index, estado) {
                     // Agregar al select de filtros
                     selectFiltro.append('<option value="' + estado.id + '">' + estado.status + '</option>');
                 });
@@ -712,6 +720,11 @@ function guardarEstado() {
     var estadoId = $('#nuevoEstado').val();
     var nuevoEstadoNombre = $('#nuevoEstadoNombre').val();
     var descripcion = $('#descripcion').val();
+
+    if (!salesOrderId) {
+        alert('No se pudo identificar la orden de venta. Cierre el modal e intente abrirlo nuevamente.');
+        return;
+    }
     
     // Determinar qué acción se está realizando según el tab activo
     var accionSeleccionada;
@@ -745,12 +758,17 @@ function guardarEstado() {
             if (response.success) {
                 $('#modalCambiarEstado').modal('hide');
                 alert(response.message);
+                if (accionSeleccionada === 'crear') {
+                    cargarEstados();
+                }
                 // Recargar la tabla forzando nueva consulta
                 var formData = $('#filterForm').serialize();
                 formData += '&_=' + Date.now();
                 window["paginationComponentreporteCategoriasTable"].reload(formData);
                 // Actualizar resumen
-                setTimeout(cargarResumenEstados, 1000);
+                setTimeout(function() {
+                    cargarResumenEstados(formData);
+                }, 1000);
             } else {
                 alert('Error: ' + response.message);
             }
@@ -775,6 +793,7 @@ function filtrarPorEstado(estadoId) {
     var formData = 'estado=' + estadoId + '&_=' + Date.now();
     
     window["paginationComponentreporteCategoriasTable"].reload(formData);
+    cargarResumenEstados(formData);
     
     // Actualizar resaltado de tarjetas
     resaltarTarjetaActiva();
@@ -795,6 +814,7 @@ function limpiarFiltroEstado() {
     formData += '&_=' + Date.now(); // Evitar cache
     
     window["paginationComponentreporteCategoriasTable"].reload(formData);
+    cargarResumenEstados(formData);
     
     // Actualizar resaltado de tarjetas
     resaltarTarjetaActiva();
@@ -823,8 +843,8 @@ function mostrarOverlayCarga() {
         `);
     }
     
-    // Mostrar overlay con fade in
-    $('#loading-overlay').fadeIn(200);
+    // Mostrar overlay con fade in manteniendo el centrado flex
+    $('#loading-overlay').stop(true, true).css('display', 'flex').hide().fadeIn(200);
 }
 
 function ocultarOverlayCarga() {
@@ -888,6 +908,7 @@ $(document).ready(function() {
         formData += '&_=' + Date.now();
         
         window["paginationComponentreporteCategoriasTable"].reload(formData);
+        cargarResumenEstados(formData);
     });
 });
 
@@ -1044,7 +1065,6 @@ class PaginationComponent {
             success: (response) => {
                 console.log('Respuesta AJAX exitosa:', response);
                 this.loading = false;
-                this.hideLoading();
                 this.renderTable(response);
                 this.updatePagination(response.pagination);
                 this.currentPage = page;
@@ -1212,12 +1232,11 @@ class PaginationComponent {
     }
     
     showLoading() {
-        // No mostrar el loading interno cuando usamos overlay
-        // El overlay ya muestra el indicador de carga
+        mostrarOverlayCarga();
     }
     
     hideLoading() {
-        // No ocultar nada aquí, el overlay se encarga de todo
+        ocultarOverlayCarga();
     }
     
     showError(message) {
@@ -1247,6 +1266,7 @@ $(document).ready(function() {
         }
 
         window["paginationComponentreporteCategoriasTable"].loadPage(1, formData);
+        cargarResumenEstados(formData);
     }
 });
 
@@ -1255,6 +1275,7 @@ $('#previousmonth, #nextmonth').click(function() {
     setTimeout(function() {
         var formData = $('#filterForm').serialize();
         window["paginationComponentreporteCategoriasTable"].reload(formData);
+        cargarResumenEstados(formData);
     }, 100);
 });
 
@@ -1277,6 +1298,7 @@ $('#filterForm').submit(function(e) {
     formData += '&_=' + Date.now();
     
     window["paginationComponentreporteCategoriasTable"].reload(formData);
+    cargarResumenEstados(formData);
 });
 
 // Función para formatear números
@@ -1289,10 +1311,15 @@ function formatNumbers() {
     });
 }
 
-function cargarResumenEstados() {
+function cargarResumenEstados(formData) {
+    var resumenData = formData || $('#filterForm').serialize();
+    resumenData = resumenData.replace(/_method=POST&?/, '');
+    resumenData = resumenData.replace(/&?_=\d+/, '');
+
     $.ajax({
         url: "<?php echo $this->Html->url('/sales_orders/getResumenEstados'); ?>",
         type: 'GET',
+        data: resumenData,
         dataType: 'json',
         success: function(response) {
             if (response.success) {

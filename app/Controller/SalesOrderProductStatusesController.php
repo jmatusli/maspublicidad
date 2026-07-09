@@ -192,10 +192,13 @@ class SalesOrderProductStatusesController extends AppController {
 					'status' => $estado['SalesOrderProductStatus']['status']
 				);
 			}
+
+			$estadosFiltroList = $estadosList;
 			
 			echo json_encode(array(
 				'success' => true,
-				'estados' => $estadosList
+				'estados' => $estadosList,
+				'estados_filtro' => $estadosFiltroList
 			));
 		} catch (Exception $e) {
 			echo json_encode(array(
